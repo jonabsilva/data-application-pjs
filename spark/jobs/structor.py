@@ -1,0 +1,1 @@
+# Struict data

@@ -1,0 +1,1 @@
+# app apply Factory Method
