@@ -18,43 +18,42 @@ The goal is to get data from eSaj ingest, process and display data almost all th
 
 ## Draft
 
--- scripts/ <br>
--- ingestion <br>
--- api-gdrive <br>
--- scraping <br>
--- n-sources <br>
--- processing <br>
--- read <br>
--- struct <br>
--- persist <br>
--- consuming <br>
--- notifier <br>
+-- scripts/
+ -- ingestion
+   -- api-gdrive
+   -- scraping
+   -- n-sources ****
+ -- processing
+   -- read
+   -- struct
+   -- persist
+ -- consuming
+   -- notifier
 
 ############################## This part is separated ##############################
-
--- Telegram BOT <br>
--- bot-request # it goes to the VPS (Hostinger) <br>
+-- Telegram BOT
+  -- bot-request # it goes to the VPS (Hostinger)
 
 # Repository
 
 ################################# RESPOSITORY TREE #################################
-meu_projeto/ <br>
-├── terraform/ <br>
-│ ├── main.tf # Configurações principais do Terraform <br>
-│ ├── variables.tf # Declaração de variáveis do Terraform <br>
-│ └── outputs.tf # Saída das configurações do Terraform <br>
-├── scripts/ <br>
-│ ├── ingestao.py # Script Python para ingestão de dados do Google Drive e API <br>
-│ ├── processamento.py # Script Python para processamento de dados com Apache Spark <br>
-│ ├── notificacao.py # Script Python para notificação por e-mail e Telegram <br>
-│ └── requirements.txt # Lista de dependências do Python <br>
-└── spark/ <br>
-│ ├── jobs/ # Diretório para os jobs do Spark <br>
-│ │ └── processamento_spark.py # Job do Spark para processamento de dados <br>
-│ └── submit.sh # Script para submissão de jobs do Spark <br>
-└── bot_telegram/ <br>
-├── bot.py # Script Python para o bot do Telegram <br>
-└── requirements.txt # Lista de dependências do Python <br>
+meu_projeto/
+├── terraform/
+│   ├── main.tf            # Configurações principais do Terraform
+│   ├── variables.tf       # Declaração de variáveis do Terraform
+│   └── outputs.tf         # Saída das configurações do Terraform
+├── scripts/
+│   ├── ingestao.py        # Script Python para ingestão de dados do Google Drive e API
+│   ├── processamento.py   # Script Python para processamento de dados com Apache Spark
+│   ├── notificacao.py     # Script Python para notificação por e-mail e Telegram
+│   └── requirements.txt   # Lista de dependências do Python
+└── spark/
+│   ├── jobs/              # Diretório para os jobs do Spark
+│   │   └── processamento_spark.py  # Job do Spark para processamento de dados
+│   └── submit.sh          # Script para submissão de jobs do Spark
+└── bot_telegram/
+    ├── bot.py             # Script Python para o bot do Telegram
+    └── requirements.txt   # Lista de dependências do Python
 
 # Architecture
 
