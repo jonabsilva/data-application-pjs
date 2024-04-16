@@ -1,5 +1,5 @@
 # data-application-pjs
-This is a Data application created and first developed by myself (@jowzera).
+This is a Data application created and first developed by myself (@Jowzera).
 
 The goal is to get data from eSaj ingest, process and display data almost all the data applications.
 
