@@ -18,7 +18,7 @@ The goal is to get data from eSaj ingest, process and display data almost all th
 
 ## Draft
 
-````bash
+```bash
 - scripts/
     -- ingestion
     -- api-gdrive
@@ -39,7 +39,7 @@ The goal is to get data from eSaj ingest, process and display data almost all th
 # Repository
 
 ################################# RESPOSITORY TREE #################################
-```bash
+
 meu_projeto/
 ├── terraform/
 │ ├── main.tf # Configurações principais do Terraform
@@ -59,6 +59,6 @@ meu_projeto/
 └── requirements.txt # Lista de dependências do Python
 
 # Architecture
+```
 
 ![Screenshot 2024-04-16 at 18 40 05](https://github.com/Jowzera/data-application-pjs/assets/51763929/c99b5ac3-9aec-4725-a790-b22c196780f3)
-````
