@@ -18,11 +18,16 @@ Concrete Products provide various implementations of the Product interface.
 """
 
 
-class ConcreteProduct1(Product):
+class ProductExtraction(Product):
     def operation(self) -> str:
-        return "{Result of the ConcreteProduct1}"
+        return "{Result of the ProductExtraction}"
 
 
-class ConcreteProduct2(Product):
+class ProductReporting(Product):
     def operation(self) -> str:
-        return "{Result of the ConcreteProduct2}"
+        return "{Result of the ProductReporting}"
+
+
+class ProductProcessing(Product):
+    def operation(self) -> str:
+        return "{Result of the ProductProcessing}"

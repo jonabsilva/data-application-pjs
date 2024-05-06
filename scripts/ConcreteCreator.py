@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from jobs.ConcreteProduct import (
-    ConcreteProduct1, ConcreteProduct2)
+    Product, ProductExtraction, ProductReporting, ProductProcessing)
 
 
 class Creator(ABC):
@@ -43,7 +43,7 @@ product's type.
 """
 
 
-class ConcreteCreator1(Creator):
+class CreatorExtraction(Creator):
     """
     Note that the signature of the method still uses the abstract product type,
     even though the concrete product is actually returned from the method. This
@@ -51,9 +51,13 @@ class ConcreteCreator1(Creator):
     """
 
     def factory_method(self) -> Product:
-        return ConcreteProduct1()
+        return ProductExtraction()
 
 
-class ConcreteCreator2(Creator):
+class CreatorReporting(Creator):
     def factory_method(self) -> Product:
-        return ConcreteProduct2()
+        return ProductReporting()
+
+class CreatorProcessing(Creator):
+    def factory_method(self) -> Product:
+        return ProductProcessing()

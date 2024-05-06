@@ -1,5 +1,5 @@
 from scripts.ConcreteCreator import (
-    Creator, ConcreteCreator1, ConcreteCreator2)
+    Creator, CreatorExtraction, CreatorReporting, CreatorProcessing)
 
 
 def client_code(creator: Creator) -> None:
@@ -14,9 +14,14 @@ def client_code(creator: Creator) -> None:
 
 
 if __name__ == "__main__":
-    print("App: Launched with the ConcreteCreator1.")
-    client_code(ConcreteCreator1())
+    print("App: Launched with the CreatorExtraction.")
+    client_code(CreatorExtraction())
     print("\n")
 
-    print("App: Launched with the ConcreteCreator2.")
-    client_code(ConcreteCreator2())
+    print("App: Launched with the CreatorReporting.")
+    client_code(CreatorReporting())
+    print("\n")
+
+    print("App: Launched with the CreatorProcessing.")
+    client_code(CreatorProcessing())
+    print("\n")
