@@ -58,6 +58,7 @@ class CreatorReporting(Creator):
     def factory_method(self) -> Product:
         return ProductReporting()
 
+
 class CreatorProcessing(Creator):
     def factory_method(self) -> Product:
         return ProductProcessing()

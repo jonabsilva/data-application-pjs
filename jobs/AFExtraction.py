@@ -1,6 +1,33 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+import pandas as pd
+import requests
+import io
+
+import ssl
+
+###############
+credentials_drive_ = "/Users/jonathanbrunosilva/Documents/JJTECH/BNS/Service-Account/data-application-pjs.json"
+
+# Autenticar na API do Google Drive
+credentials_drive = service_account.Credentials.from_service_account_file(
+    credentials_drive_, scopes=['https://www.googleapis.com/auth/drive.files'])
+
+drive_service = build('drive', 'v3', credentials=credentials_drive)
+
+# Your API key
+API_KEY = "AIzaSyCoqEmfXRQqRFpoAfRLqAznczv-X1D6Vh4"
+
+# File ID of the file you want to access
+file_id = '1NYLMVpIB-f99E1TkLyb_rrM9kb9b9Xu8'
+###############
+
+# Credentials - Certificate
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 class IIngestion(ABC):
     """
@@ -87,7 +114,23 @@ Concrete Products are created by corresponding Concrete Factories.
 
 class GDriveData(GDriveFile):
     def start_gdrive_extraction(self) -> str:
-        return "The result start extraction of GDrive."
+        try:
+            # Download the file from Google Drive
+
+            url = f'https://www.googleapis.com/drive/v3/files/{file_id}?alt=media&key={API_KEY}'
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                # Create DataFrame with Pandas
+                df = pd.read_csv(io.StringIO(response.content.decode()))
+
+                # Print the DataFrame
+                return df
+            else:
+                print('Failed to download file:', response.text)
+        except Exception as e:
+            print("An error occurred:", e)
+        return f"The result start extraction of GDrive.\n {df}"
 
     """
     The variant, Product B1, is only able to work correctly with the variant,
@@ -95,8 +138,8 @@ class GDriveData(GDriveFile):
     argument.
     """
 
-#    def another_useful_function_b(self, collaborator: ESajDataFiles) -> str:
-#        result = collaborator.start_scraping()
+#    def another_useful_function_b(self, collaborator: GoogleDriveAPIClient) -> str:
+#        result = collaborator.get_data_gdrive_api()
 #        return f"The result of the B1 collaborating with the ({result})"
 
 ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
@@ -106,18 +149,8 @@ def client_code(factory: IIngestion) -> None:
     types: IIngestion and AbstractProduct. This lets you pass any factory
     or product subclass to the client code without breaking it.
     """
-    scraping = factory.scraping_esaj()
+    #scraping = factory.scraping_esaj()
     get_gdrive_data = factory.get_gdrive_data()
 
     print(f"{get_gdrive_data.start_gdrive_extraction()}")
-    print(f"{scraping.start_scraping()}", end="")
-
-
-if __name__ == "__main__":
-    """
-    The client code can work with any concrete factory class.
-    """
-    print("Client: Testing client code with the Extraction factory type:")
-    client_code(Extraction())
-
-    print("\n")
+    #print(f"{get_gdrive_data.another_useful_function_b(scraping)}", end="")
