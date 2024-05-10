@@ -30,5 +30,8 @@ def get_file_id(file_name: str) -> str:
     conf_vars_jobs = os.path.abspath(file_name)
     with open(conf_vars_jobs, "r") as file:
         data = json.load(file)
+        field_id = str(list(data.keys())[0])
     
-    return data["file_id"]
+    return data[field_id]
+
+print(list(set(get_file_id("config/conf-vars.json").values())))
