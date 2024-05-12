@@ -9,6 +9,8 @@ import requests
 import io
 import os
 
+from scripts.processing.ingestor import *
+
 import ssl
 # Credentials - Certificate
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -33,7 +35,7 @@ class Helper:
 
     # Read a JSON
     @staticmethod
-    def get_file_id(file_name: str) -> str:
+    def get_gdrive_file_id(file_name: str) -> str:
         """
         Read a JSON file and return its data as a dictionary.
         Args:
@@ -44,9 +46,9 @@ class Helper:
         conf_vars_jobs = os.path.abspath(file_name)
         with open(conf_vars_jobs, "r") as file:
             data = json.load(file)
-            field_id = str(list(data.keys())[0])
+            gdrive_file_id = str(list(data.keys())[0])
 
-        return data[field_id]
+        return data[gdrive_file_id]
 
 
 class IIngestion(ABC):
@@ -133,21 +135,24 @@ Concrete Products are created by corresponding Concrete Factories.
 
 
 class GDriveData(GDriveFile):
-    def start_gdrive_extraction(self, file_id) -> str:
+    def start_gdrive_extraction(self, 
+                                gdrive_file_id: str, 
+                                credentials_drive: str, 
+                                api_key: str) -> str:
         try:
             # Autenticar na API do Google Drive
             pattern = Helper()
 
-            credentials_drive = service_account.Credentials.\
+            cred_drive = service_account.Credentials.\
                 from_service_account_file(
-                    pattern.get_env_variables(var="CREDENCIALS_DRIVE"), 
+                    pattern.get_env_variables(var=credentials_drive), 
                     scopes=['https://www.googleapis.com/auth/drive.files'])
-            
-            drive_service = build('drive', 'v3', credentials=credentials_drive)
+
+            drive_service = build('drive', 'v3', credentials=cred_drive)
 
             # Download the file from Google Drive
             uri = "https://www.googleapis.com/drive/v3/files/"
-            url = f'{uri}{file_id}?alt=media&key={pattern.get_env_variables(var="API_KEY")}'
+            url = f'{uri}{gdrive_file_id}?alt=media&key={pattern.get_env_variables(var=api_key)}'
             response = requests.get(url)
 
             if response.status_code == 200:
@@ -173,18 +178,32 @@ class GDriveData(GDriveFile):
 #        return f"The result of the B1 collaborating with the ({result})"
 
 ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
-def client_code(factory: IIngestion) -> None:
+def af_extraction_client_code(factory: IIngestion) -> None:
     """
     The client code works with factories and products only through abstract
     types: IIngestion and AbstractProduct. This lets you pass any factory
     or product subclass to the client code without breaking it.
     """
+    
     #scraping = factory.scraping_esaj()
     get_gdrive_data = factory.get_gdrive_data()
+    gdrive_file_id_var = Helper()
+    
+    for id in (list(set(
+        gdrive_file_id_var.get_gdrive_file_id("config/conf-vars.json").values()))):
+        
+        extract = str(get_gdrive_data.start_gdrive_extraction(
+            gdrive_file_id=id, 
+            credentials_drive="CREDENCIALS_DRIVE", 
+            api_key="API_KEY"))
+        
+        print(extract)
 
-    file_id_var = Helper()
-    for id in (list(set(file_id_var.get_file_id("config/conf-vars.json").values()))):
-        print(f"{str(get_gdrive_data.start_gdrive_extraction(id))}")
+        # from simple factory
+        task = IngestorOperator()
+
+        persister = task.start("persister")
+        persister.operation_starter()
     #print(f"{get_gdrive_data.another_useful_function_b(scraping)}", end="")
 
 

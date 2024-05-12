@@ -19,7 +19,7 @@ def get_env_variables(var: str) -> str:
 
 
 # Read a JSON
-def get_file_id(file_name: str) -> str:
+def get_gdrive_file_id(file_name: str) -> str:
     """
     Read a JSON file and return its data as a dictionary.
     Args:
@@ -34,4 +34,4 @@ def get_file_id(file_name: str) -> str:
     
     return data[field_id]
 
-print(list(set(get_file_id("config/conf-vars.json").values())))
+print(list(set(get_gdrive_file_id("config/conf-vars.json").values())))
