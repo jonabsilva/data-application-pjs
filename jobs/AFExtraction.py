@@ -9,7 +9,7 @@ import requests
 import io
 import os
 
-from scripts.processing.ingestor import *
+from scripts.processing.datalake.ingestor import *
 
 import ssl
 # Credentials - Certificate

@@ -48,8 +48,8 @@ class IngestorOperator:
     def stop():...
 
 
-if __name__ == "__main__":
-    task = IngestorOperator()
-
-    persister = task.start("persister")
-    persister.operation_starter()
+#if __name__ == "__main__":
+#    task = IngestorOperator()
+#
+#    persister = task.start("persister")
+#    persister.operation_starter()
