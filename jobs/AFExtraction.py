@@ -138,7 +138,7 @@ class GDriveData(GDriveFile):
     def start_gdrive_extraction(self, 
                                 gdrive_file_id: str, 
                                 credentials_drive: str, 
-                                api_key: str) -> str:
+                                api_key: str):
         try:
             # Autenticar na API do Google Drive
             pattern = Helper()
@@ -188,22 +188,29 @@ def af_extraction_client_code(factory: IIngestion) -> None:
     #scraping = factory.scraping_esaj()
     get_gdrive_data = factory.get_gdrive_data()
     gdrive_file_id_var = Helper()
+
+    conf = gdrive_file_id_var.get_gdrive_file_id("config/conf-vars.json")
+    chaves = [chave for chave in conf.keys()]
+    valores = [valor for valor in conf.values()]
     
-    for id in (list(set(
-        gdrive_file_id_var.get_gdrive_file_id("config/conf-vars.json").values()))):
-        
-        extract = str(get_gdrive_data.start_gdrive_extraction(
+    #for id in (list(set(
+    #    gdrive_file_id_var.get_gdrive_file_id("config/conf-vars.json").values()))):
+    for cia, id in zip(chaves, valores):
+        to_data_frame = get_gdrive_data.start_gdrive_extraction(
             gdrive_file_id=id, 
             credentials_drive="CREDENCIALS_DRIVE", 
-            api_key="API_KEY"))
-        
-        print(extract)
+            api_key="API_KEY")
+        df = pd.DataFrame(to_data_frame)
 
         # from simple factory
         task = IngestorOperator()
-
+        
         persister = task.start("persister")
-        persister.operation_starter()
+        #print(persister.operation_starter(df=df))
+        persister.operation_starter(bucket_name="dlk-transit-idn-00001-pjs-dev",
+                                    df=df,
+                                    gcs_file_name=f"db_landzone_idr_00001_pjs_dev/{cia}/GDrive-API/2024/05/{str(cia).lower()}-process-code-20250514.csv")
+        #print(persister.operation_starter(df=df))
     #print(f"{get_gdrive_data.another_useful_function_b(scraping)}", end="")
 
 

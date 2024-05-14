@@ -14,7 +14,7 @@ def client_code(creator: Creator) -> None:
 
 
 if __name__ == "__main__":
-    print("App: Launched with the CreatorExtraction.")
+    print("App: Launched with the CreatorExtraction.\n")
     client_code(CreatorExtraction())
     print("\n")
 
