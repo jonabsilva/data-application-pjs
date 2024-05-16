@@ -17,10 +17,10 @@ class DataLakeIgestor:
         pass
 
 
-
 """
 Concrete Products provide various implementations of the Product interface.
 """
+
 class Reader(DataLakeIgestor):
     """
     """
@@ -57,10 +57,9 @@ class Persister(DataLakeIgestor):
 
         # Uploads the CSV file to GCS
         blob = bucket.blob(gcs_file_name)
-        blob.upload_from_file(csv_file, content_type='text/csv')
+        #blob.upload_from_file(csv_file, content_type='text/csv')
 
         print(f"DataFrame uploaded to gs://{bucket_name}/{gcs_file_name}")
-
 
 
 class Structure(DataLakeIgestor):
@@ -70,11 +69,16 @@ class Structure(DataLakeIgestor):
 
 class IngestorOperator:
     @staticmethod
-    def start(ingestor_type):
+    def start(ingestor_type: str, task_type: str):
         if ingestor_type == "reader":
             return Reader()
         elif ingestor_type == "persister":
-            return Persister()
+            if task_type == None:
+                return Persister()
+            elif task_type == "eSaj":
+                return Persister()
+            elif task_type == "GDrive":
+                return Persister()
         elif ingestor_type == "structure":
             return Structure()
         else:
