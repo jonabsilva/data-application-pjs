@@ -22,8 +22,10 @@ Concrete Products provide various implementations of the Product interface.
 class ProductExtraction(Product):
     def operation(self) -> str:
         #return "Result of the ProductExtraction {client_code(Extraction())}"
-        # if to land and rich zones
-        return {af_extraction_client_code(factory=Extraction(), gcs_bucket="gcs_bucket_landzone")}
+        # return {af_extraction_esaj(factory=Extraction(), gcs_bucket="gcs_bucket_landzone")}
+        return {af_extraction_client_code(factory=Extraction(), 
+                                          gcs_bucket="gcs_bucket_landzone", 
+                                          extract_type="esaj")}
 
 
 class ProductReporting(Product):

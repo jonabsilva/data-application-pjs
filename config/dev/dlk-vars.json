@@ -9,10 +9,10 @@
   "gcs_bucket_landzone": {
     "gdrive": "GDrive-API/%cia-process-code.csv",
     "esaj": [
-      "/cabecalho/cabecalho.csv",
-      "/movimentacoes/movimentacoes.csv",
-      "/partes_do_processo/partes_do_processo.csv",
-      "/peticoes_diversas/peticoes_diversas.csv"
+      "cabecalho/cabecalho.csv",
+      "movimentacoes/movimentacoes.csv",
+      "partes_do_processo/partes_do_processo.csv",
+      "peticoes_diversas/peticoes_diversas.csv"
     ]
   },
   "gcs_bucket_richzone": {
