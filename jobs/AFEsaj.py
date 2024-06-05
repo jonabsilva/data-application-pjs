@@ -38,7 +38,7 @@ Concrete Products are created by corresponding Concrete Factories.
 
 
 class ESajData(ESajDataFiles):
-    def get_process_code(self, code_process: str):
+    def get_movimentacoes(self, code_process: str):
         datas = []
         descricoes = []
         url_call = f"{URL}{END_POINT}{PATTERN}{CD_PROCESS}{code_process}"
@@ -56,17 +56,84 @@ class ESajData(ESajDataFiles):
         #df = pd.DataFrame({'Data': datas, 'Descrição': descricoes})
         dataframe = {'data': datas, 'descricao': descricoes}    
         return dataframe
+    
+
+    # CABECALHO
+    def get_cabecalho(self, code_process: str):
+        url_call = f"{URL}{END_POINT}{PATTERN}{CD_PROCESS}{code_process}"
+        page = requests.get(url_call)
+        process_number = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="numeroProcesso"
+                                                        ).text.strip()
+        process_situation = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="labelSituacaoProcesso"
+                                                        ).text.strip()
+        process_class = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="classeProcesso"
+                                                        ).text.strip()
+        process_subject = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="assuntoProcesso"
+                                                        ).text.strip()
+        process_foro = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="foroProcesso"
+                                                        ).text.strip()
+        process_vara = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="varaProcesso"
+                                                        ).text.strip()
+        process_judge = BeautifulSoup(page.text, 
+                                    "html.parser").find('span', 
+                                                        id="juizProcesso"
+                                                        ).text.strip()
+        process_distribuition = BeautifulSoup(page.text, 
+                                    "html.parser").find('div', 
+                                                        id="dataHoraDistribuicaoProcesso")
+        
+        process_distri_date = process_distribuition.text[10]
+        process_distri_time = process_distribuition.text[14:19]
+        process_distri_status = process_distribuition.text[19]
+        process_control = BeautifulSoup(page.text, 
+                                    "html.parser").find('div', 
+                                                        id="numeroControleProcesso"
+                                                        ).text.strip()
+        process_area = BeautifulSoup(page.text, 
+                                    "html.parser").find('div', 
+                                                        id="areaProcesso"
+                                                        ).text.strip()
+        process_value = BeautifulSoup(page.text, 
+                                    "html.parser").find('div', 
+                                                        id="valorAcaoProcesso"
+                                                        ).text.strip()
+        
+        data_raw = [[process_number, process_situation, process_class]]
+        #print(process_value.text.strip())#.replace('  ', ''))
+        # data cleansing
+        data = [[item.strip() for item in row] for row in data_raw]
+        # Definindo os nomes das colunas
+        columns = ["Codigo_do_Processo", "Classe", "Assunto"]
+        # Criando o DataFrame
+        data =  [[process_number, process_situation, process_class]]#[columns, data]
+        return pd.DataFrame(data, columns=columns) #dataframe
 
     # scraping data and add into dataframe
     def start_scraping(self, dataframe= dict):
-        # Ensure all lists are of the same length
-        lengths = [len(v) for v in dataframe.values()]
-        if len(set(lengths)) > 1:
-            raise ValueError("All lists in the dictionary must be of the same length")
+        if type(dataframe) == 'pandas.core.frame.DataFrame':
+            # Ensure all lists are of the same length
+            lengths = [len(v) for v in dataframe.values()]
+            if len(set(lengths)) > 1:
+                raise ValueError(
+                    "All lists in the dictionary must be of the same length")
 
-        # Convert the data dictionary to a pandas DataFrame
-        df = pd.DataFrame(dataframe)
-        return df
+            # Convert the data dictionary to a pandas DataFrame
+            df = pd.DataFrame(dataframe).to_string(index=False)
+            return df
+        else:
+            return dataframe
 
     def __repr__(self):
         attributes = ', '.join(

@@ -25,7 +25,7 @@ class Reader(DataLakeIgestor):
     """
     """
     def operation_starter(self) :
-        print("read and file and keep it")
+        print("read a file and keep it")
 
 
 class Persister(DataLakeIgestor):

@@ -19,7 +19,7 @@ current_date = datetime.now()
 current_year = current_date.year
 current_month = current_date.month
 
-code_process_list = ["1028260-20.2021.8.26.0007", "1028260-20.2021.8.26.0007"]
+code_process_list = ["1028260-20.2021.8.26.0007", "1008436-85.2024.8.26.0002"]
 
 
 class IIngestion(ABC):
@@ -58,7 +58,6 @@ class Extraction(IIngestion):
 ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
 def af_extraction_client_code(factory: IIngestion, 
                               gcs_bucket: str,
-                              df: str = None,
                               extract_type: str = None) -> None:
     """
     The client code works with factories and products only through abstract
@@ -86,10 +85,10 @@ def af_extraction_client_code(factory: IIngestion,
                                              file_name="dlk-vars.json", 
                                              zone=zone)
 
-    cd_processo = ESajData()
+    cd_cabecalho = ESajData()
     for process in code_process_list:
-        df_cd_processo = cd_processo.get_process_code(process)
-        df_reader = cd_processo.start_scraping(dataframe=df_cd_processo)
+        df_cd_cabecalho = cd_cabecalho.get_cabecalho(process)
+        df_reader = cd_cabecalho.start_scraping(dataframe=df_cd_cabecalho)
         # Buckt and file name with YYYYmm and cia name vars replaced
         for cia, id in zip(cia, key_id):
             # esaj path
@@ -100,15 +99,14 @@ def af_extraction_client_code(factory: IIngestion,
                                             year=current_year,
                                             month=current_month)
 
-        df = pd.DataFrame(df_reader)
-
+        df_cabecalho = pd.DataFrame(df_reader)
         if extract_type == "esaj":
             task_type = "eSaj"
             persister = task.start(ingestor_type="persister",
                                 task_type=task_type)
             if zone == "gcs_bucket_landzone":
                 persister.operation_starter(bucket_name=bucket_name,
-                                            df=df,
+                                            df=df_cabecalho,
                                             gcs_file_name=f"{gcs_zone}/{cabecalho}")
             #if zone == "gcs_bucket_richzone":
             #    persister.operation_starter(bucket_name=bucket_name,
@@ -116,14 +114,36 @@ def af_extraction_client_code(factory: IIngestion,
             #                                gcs_file_name=f"{gcs_zone}/"
             #                                f"{cabecalho}")
 
+    cd_movimentacao = ESajData()
+    for process in code_process_list:
+        df_cd_movimentacao = cd_movimentacao.get_movimentacoes(process)
+        df_reader = cd_movimentacao.start_scraping(dataframe=df_cd_movimentacao)
+        # Buckt and file name with YYYYmm and cia name vars replaced
+        for cia, id in zip(cia, key_id):
+            # esaj path
+            movimentacoes = config_vars.clean_name(var=gcs_file,
+                                            key="esaj",
+                                            index=1,
+                                            cia=cia,
+                                            year=current_year,
+                                            month=current_month)
 
+        df_movimentacao = pd.DataFrame(df_reader)
 
-#           movimentacoes = config_vars.clean_name(var=gcs_file,
-#                                           key="esaj",
-#                                           index=1,
-#                                           cia=cia,
-#                                           year=current_year,
-#                                           month=current_month)
+        if extract_type == "esaj":
+            task_type = "eSaj"
+            persister = task.start(ingestor_type="persister",
+                                task_type=task_type)
+            if zone == "gcs_bucket_landzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_movimentacao,
+                                            gcs_file_name=f"{gcs_zone}/{movimentacoes}")
+            #if zone == "gcs_bucket_richzone":
+            #    persister.operation_starter(bucket_name=bucket_name,
+            #                                df=df_esaj,
+            #                                gcs_file_name=f"{gcs_zone}/"
+            #                                f"{cabecalho}")
+
 #
 #           partes_do_processo = config_vars.clean_name(var=gcs_file,
 #                                           key="esaj",
