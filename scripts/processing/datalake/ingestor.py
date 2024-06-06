@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from io import StringIO
 
 from google.cloud import storage
+from google.api_core.exceptions import Conflict
 import pandas as pd
 import csv
 
@@ -53,11 +54,26 @@ class Persister(DataLakeIgestor):
         storage_client = storage.Client()
 
         # Gets the bucket
-        bucket = storage_client.bucket(bucket_name)
+        #bucket = storage_client.bucket(bucket_name)
 
         # Uploads the CSV file to GCS
-        blob = bucket.blob(gcs_file_name)
+        #blob = bucket.blob(gcs_file_name)
         #blob.upload_from_file(csv_file, content_type='text/csv')
+        try:
+            # Verifica se o bucket já existe8
+            bucket = storage_client.get_bucket(bucket_name)
+            print(f"The bucket '{bucket_name}' already exists.")
+        except Exception as e:
+            if isinstance(e, Conflict):
+                print(f"O bucket '{bucket_name}' already exists.")
+            else:
+                # Cria o bucket
+                bucket = storage_client.bucket(bucket_name)
+                bucket = storage_client.create_bucket(bucket)
+                print(f"Bucket '{bucket_name}' created successfuly.")
+                # Uploads the CSV file to GCS
+        blob = bucket.blob(gcs_file_name)
+        blob.upload_from_file(csv_file, content_type='text/csv')
 
         print(f"DataFrame uploaded to gs://{bucket_name}/{gcs_file_name}")
 

@@ -114,7 +114,7 @@ def af_extraction_client_code(factory: IIngestion,
             #                                df=df_esaj,
             #                                gcs_file_name=f"{gcs_zone}/"
             #                                f"{cabecalho}")
-    
+
     # MOVIMENTACOES
     cd_movimentacao = ESajData()
     for process in code_process_list:
