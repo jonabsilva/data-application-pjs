@@ -84,19 +84,19 @@ def af_extraction_client_code(factory: IIngestion,
     gcs_file = config_vars.get_dlk_vars(env="dev", 
                                              file_name="dlk-vars.json", 
                                              zone=zone)
-    
+
     # CABECALHO
     cd_cabecalho = ESajData()
     for process in code_process_list:
         df_cd_cabecalho = cd_cabecalho.get_cabecalho(process)
         df_reader = cd_cabecalho.start_scraping(dataframe=df_cd_cabecalho)
         # Buckt and file name with YYYYmm and cia name vars replaced
-        for cia, id in zip(cia, key_id):
+        for cias, id in zip(cia, key_id):
             # esaj path
             cabecalho = config_vars.clean_name(var=gcs_file,
                                             key="esaj",
                                             index=0,
-                                            cia=cia,
+                                            cia=cias,
                                             year=current_year,
                                             month=current_month)
 
@@ -108,7 +108,7 @@ def af_extraction_client_code(factory: IIngestion,
             if zone == "gcs_bucket_landzone":
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_cabecalho,
-                                            gcs_file_name=f"{gcs_zone}/{cabecalho}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/{cabecalho}")
             #if zone == "gcs_bucket_richzone":
             #    persister.operation_starter(bucket_name=bucket_name,
             #                                df=df_esaj,
@@ -121,12 +121,12 @@ def af_extraction_client_code(factory: IIngestion,
         df_cd_movimentacao = cd_movimentacao.get_movimentacoes(process)
         df_reader = cd_movimentacao.start_scraping(dataframe=df_cd_movimentacao)
         # Buckt and file name with YYYYmm and cia name vars replaced
-        for cia, id in zip(cia, key_id):
+        for cias, id in zip(cia, key_id):
             # esaj path
             movimentacoes = config_vars.clean_name(var=gcs_file,
                                             key="esaj",
                                             index=1,
-                                            cia=cia,
+                                            cia=cias,
                                             year=current_year,
                                             month=current_month)
 
@@ -138,7 +138,7 @@ def af_extraction_client_code(factory: IIngestion,
             if zone == "gcs_bucket_landzone":
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_movimentacao,
-                                            gcs_file_name=f"{gcs_zone}/{movimentacoes}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/{movimentacoes}")
             #if zone == "gcs_bucket_richzone":
             #    persister.operation_starter(bucket_name=bucket_name,
             #                                df=df_esaj,
@@ -151,12 +151,12 @@ def af_extraction_client_code(factory: IIngestion,
         df_cd_process_part = cd_process_part.get_process_part(process)
         df_reader = cd_process_part.start_scraping(dataframe=df_cd_process_part)
         # Buckt and file name with YYYYmm and cia name vars replaced
-        for cia, id in zip(cia, key_id):
+        for cias, id in zip(cia, key_id):
             # esaj path
             process_part = config_vars.clean_name(var=gcs_file,
                                             key="esaj",
                                             index=2,
-                                            cia=cia,
+                                            cia=cias,
                                             year=current_year,
                                             month=current_month)
 
@@ -168,7 +168,7 @@ def af_extraction_client_code(factory: IIngestion,
             if zone == "gcs_bucket_landzone":
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_process_part,
-                                            gcs_file_name=f"{gcs_zone}/{process_part}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/{process_part}")
             #if zone == "gcs_bucket_richzone":
             #    persister.operation_starter(bucket_name=bucket_name,
             #                                df=df_esaj,
@@ -181,12 +181,12 @@ def af_extraction_client_code(factory: IIngestion,
         df_cd_peticoes_diversas = cd_peticoes_diversas.get_movimentacoes(process)
         df_reader = cd_peticoes_diversas.start_scraping(dataframe=df_cd_peticoes_diversas)
         # Buckt and file name with YYYYmm and cia name vars replaced
-        for cia, id in zip(cia, key_id):
+        for cias, id in zip(cia, key_id):
             # esaj path
             movimentacoes = config_vars.clean_name(var=gcs_file,
                                             key="esaj",
                                             index=3,
-                                            cia=cia,
+                                            cia=cias,
                                             year=current_year,
                                             month=current_month)
 
@@ -198,7 +198,7 @@ def af_extraction_client_code(factory: IIngestion,
             if zone == "gcs_bucket_landzone":
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_peticoes_diversas,
-                                            gcs_file_name=f"{gcs_zone}/{movimentacoes}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/{movimentacoes}")
             #if zone == "gcs_bucket_richzone":
             #    persister.operation_starter(bucket_name=bucket_name,
             #                                df=df_esaj,
@@ -206,18 +206,18 @@ def af_extraction_client_code(factory: IIngestion,
             #                                f"{cabecalho}")
 
     # Buckt and file name with YYYYmm and cia name vars replaced
-    for cia, id in zip(cia, key_id):
+    for cias, id in zip(cia, key_id):
         #gdrive path
         gdrive = config_vars.clean_name_gdrive(var=gcs_file, 
                                                key="gdrive", 
-                                               cia=cia, 
+                                               cia=cias, 
                                                year=current_year, 
                                                month=current_month, 
                                                path="gdrive")
 
         gdrive_rich = config_vars.clean_name_gdrive(var=gcs_file, 
                                                key="gdrive", 
-                                               cia=cia, 
+                                               cia=cias, 
                                                year=current_year, 
                                                month=current_month, 
                                                path="gdrive_rich")
@@ -231,7 +231,6 @@ def af_extraction_client_code(factory: IIngestion,
 
         # Obtém os valores dos parâmetros
         df_gdrive = pd.DataFrame(to_data_frame)
-
         if extract_type == "gdrive":
             task_type = "GDrive"
             persister = task.start(ingestor_type="persister", task_type=task_type)

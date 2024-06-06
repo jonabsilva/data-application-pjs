@@ -53,12 +53,7 @@ class Persister(DataLakeIgestor):
         # Instantiates a client
         storage_client = storage.Client()
 
-        # Gets the bucket
-        #bucket = storage_client.bucket(bucket_name)
-
         # Uploads the CSV file to GCS
-        #blob = bucket.blob(gcs_file_name)
-        #blob.upload_from_file(csv_file, content_type='text/csv')
         try:
             # Verifica se o bucket já existe8
             bucket = storage_client.get_bucket(bucket_name)

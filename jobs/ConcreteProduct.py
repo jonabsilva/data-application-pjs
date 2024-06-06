@@ -25,7 +25,7 @@ class ProductExtraction(Product):
         # return {af_extraction_esaj(factory=Extraction(), gcs_bucket="gcs_bucket_landzone")}
         return {af_extraction_client_code(factory=Extraction(), 
                                           gcs_bucket="gcs_bucket_landzone", 
-                                          extract_type="esaj")}
+                                          extract_type="gdrive")}
 
 
 class ProductReporting(Product):
