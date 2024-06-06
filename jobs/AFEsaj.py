@@ -18,7 +18,7 @@ PATTERN=r'(=.*&)'
 URL = f"""https://esaj.tjsp.jus.br/"""
 
 
-#code_process_list = ["1028260-20.2021.8.26.0007"]
+code_process_list = ["1028260-20.2021.8.26.0007"]
 
 
 class ESajDataFiles(ABC):
@@ -38,6 +38,7 @@ Concrete Products are created by corresponding Concrete Factories.
 
 
 class ESajData(ESajDataFiles):
+    # MOVIMENTACOES
     def get_movimentacoes(self, code_process: str):
         datas = []
         descricoes = []
@@ -56,7 +57,6 @@ class ESajData(ESajDataFiles):
         #df = pd.DataFrame({'Data': datas, 'Descrição': descricoes})
         dataframe = {'data': datas, 'descricao': descricoes}    
         return dataframe
-    
 
     # CABECALHO
     def get_cabecalho(self, code_process: str):
@@ -110,15 +110,35 @@ class ESajData(ESajDataFiles):
                                                         id="valorAcaoProcesso"
                                                         ).text.strip()
         
-        data_raw = [[process_number, process_situation, process_class]]
-        #print(process_value.text.strip())#.replace('  ', ''))
-        # data cleansing
-        data = [[item.strip() for item in row] for row in data_raw]
         # Definindo os nomes das colunas
-        columns = ["Codigo_do_Processo", "Classe", "Assunto"]
+        columns = ["Codigo_do_Processo", "Situacao_projeto" ,"Classe", "Assunto", 
+                   "Foro", "Vara", "Juiz", "Distribuicao", "Date" ,"Hora", 
+                   "Status", "Controle", "Area", "Valor_da_acao"]
         # Criando o DataFrame
-        data =  [[process_number, process_situation, process_class]]#[columns, data]
+        data =  [[process_number, process_situation, process_class, 
+                     process_subject, process_foro, process_vara, process_judge,
+                     process_distribuition, process_distri_date, process_distri_time,
+                     process_distri_status, process_control, process_area, process_value]]#[columns, data]
         return pd.DataFrame(data, columns=columns) #dataframe
+
+    # PARTES DO PROCESSO
+    def get_process_part(self, code_process: str):
+        lista_de_strings = []
+        url_call = f"{URL}{END_POINT}{PATTERN}{CD_PROCESS}{code_process}"
+        page = requests.get(url_call)
+        soup = BeautifulSoup(page.text, "html.parser").find('table', id="tablePartesPrincipais")
+        lista_de_strings.append(soup.text.strip().replace('\n', '').replace('\t', ''))
+        # Lista para armazenar os dicionários de dados
+        data_list = []
+        for string in lista_de_strings:
+            # Separe a string em 'Reqt' e 'Reqd' usando 'split'
+            reqt, reqd = string.split('Reqte')[1].split('Reqd')
+            # Crie um dicionário com os dados
+            data = {'Reqte': reqt.strip(), 'Reqd': reqd.strip()[2:]}
+            data_list.append(data)
+        # Concatene os dicionários em um DataFrame
+        dataframe = pd.DataFrame(data_list, columns=['Reqte', 'Reqd'])
+        return dataframe
 
     # scraping data and add into dataframe
     def start_scraping(self, dataframe= dict):
@@ -139,13 +159,3 @@ class ESajData(ESajDataFiles):
         attributes = ', '.join(
             f"{key}={value}" for key, value in self.__dict__.items())
         return f"DinamicWithList({attributes})"
-
-
-#cd_processo = ESajData()
-#
-#for a in code_process_list:
-#    gt_cd_process = cd_processo.get_process_code(a)
-#    gt = cd_processo.start_scraping(dataframe=gt_cd_process)
-#
-#    print(gt)
-#

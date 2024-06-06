@@ -129,7 +129,6 @@ def af_extraction_client_code(factory: IIngestion,
                                             month=current_month)
 
         df_movimentacao = pd.DataFrame(df_reader)
-
         if extract_type == "esaj":
             task_type = "eSaj"
             persister = task.start(ingestor_type="persister",
@@ -144,6 +143,34 @@ def af_extraction_client_code(factory: IIngestion,
             #                                gcs_file_name=f"{gcs_zone}/"
             #                                f"{cabecalho}")
 
+    cd_process_part = ESajData()
+    for process in code_process_list:
+        df_cd_process_part = cd_process_part.get_process_part(process)
+        df_reader = cd_process_part.start_scraping(dataframe=df_cd_process_part)
+        # Buckt and file name with YYYYmm and cia name vars replaced
+        for cia, id in zip(cia, key_id):
+            # esaj path
+            process_part = config_vars.clean_name(var=gcs_file,
+                                            key="esaj",
+                                            index=2,
+                                            cia=cia,
+                                            year=current_year,
+                                            month=current_month)
+
+        df_process_part = pd.DataFrame(df_reader)
+        if extract_type == "esaj":
+            task_type = "eSaj"
+            persister = task.start(ingestor_type="persister",
+                                task_type=task_type)
+            if zone == "gcs_bucket_landzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_process_part,
+                                            gcs_file_name=f"{gcs_zone}/{process_part}")
+            #if zone == "gcs_bucket_richzone":
+            #    persister.operation_starter(bucket_name=bucket_name,
+            #                                df=df_esaj,
+            #                                gcs_file_name=f"{gcs_zone}/"
+            #                                f"{cabecalho}")
 #
 #           partes_do_processo = config_vars.clean_name(var=gcs_file,
 #                                           key="esaj",
