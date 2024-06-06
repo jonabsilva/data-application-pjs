@@ -84,7 +84,8 @@ def af_extraction_client_code(factory: IIngestion,
     gcs_file = config_vars.get_dlk_vars(env="dev", 
                                              file_name="dlk-vars.json", 
                                              zone=zone)
-
+    
+    # CABECALHO
     cd_cabecalho = ESajData()
     for process in code_process_list:
         df_cd_cabecalho = cd_cabecalho.get_cabecalho(process)
@@ -113,7 +114,8 @@ def af_extraction_client_code(factory: IIngestion,
             #                                df=df_esaj,
             #                                gcs_file_name=f"{gcs_zone}/"
             #                                f"{cabecalho}")
-
+    
+    # MOVIMENTACOES
     cd_movimentacao = ESajData()
     for process in code_process_list:
         df_cd_movimentacao = cd_movimentacao.get_movimentacoes(process)
@@ -143,6 +145,7 @@ def af_extraction_client_code(factory: IIngestion,
             #                                gcs_file_name=f"{gcs_zone}/"
             #                                f"{cabecalho}")
 
+    # PARTES DO PROCESSO
     cd_process_part = ESajData()
     for process in code_process_list:
         df_cd_process_part = cd_process_part.get_process_part(process)
@@ -171,20 +174,36 @@ def af_extraction_client_code(factory: IIngestion,
             #                                df=df_esaj,
             #                                gcs_file_name=f"{gcs_zone}/"
             #                                f"{cabecalho}")
-#
-#           partes_do_processo = config_vars.clean_name(var=gcs_file,
-#                                           key="esaj",
-#                                           index=2,
-#                                           cia=cia,
-#                                           year=current_year,
-#                                           month=current_month)
-#
-#           peticoes_diversas = config_vars.clean_name(var=gcs_file,
-#                                           key="esaj",
-#                                           index=3,
-#                                           cia=cia,
-#                                           year=current_year,
-#                                           month=current_month)
+
+    # PETICOES DIVERSAS
+    cd_peticoes_diversas = ESajData()
+    for process in code_process_list:
+        df_cd_peticoes_diversas = cd_peticoes_diversas.get_movimentacoes(process)
+        df_reader = cd_peticoes_diversas.start_scraping(dataframe=df_cd_peticoes_diversas)
+        # Buckt and file name with YYYYmm and cia name vars replaced
+        for cia, id in zip(cia, key_id):
+            # esaj path
+            movimentacoes = config_vars.clean_name(var=gcs_file,
+                                            key="esaj",
+                                            index=3,
+                                            cia=cia,
+                                            year=current_year,
+                                            month=current_month)
+
+        df_peticoes_diversas = pd.DataFrame(df_reader)
+        if extract_type == "esaj":
+            task_type = "eSaj"
+            persister = task.start(ingestor_type="persister",
+                                task_type=task_type)
+            if zone == "gcs_bucket_landzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_peticoes_diversas,
+                                            gcs_file_name=f"{gcs_zone}/{movimentacoes}")
+            #if zone == "gcs_bucket_richzone":
+            #    persister.operation_starter(bucket_name=bucket_name,
+            #                                df=df_esaj,
+            #                                gcs_file_name=f"{gcs_zone}/"
+            #                                f"{cabecalho}")
 
     # Buckt and file name with YYYYmm and cia name vars replaced
     for cia, id in zip(cia, key_id):

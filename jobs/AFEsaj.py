@@ -140,6 +140,26 @@ class ESajData(ESajDataFiles):
         dataframe = pd.DataFrame(data_list, columns=['Reqte', 'Reqd'])
         return dataframe
 
+    # PETICOES DIVERSAS
+    def get_peticoes_diversas(self, code_process: str):
+        datas = []
+        tipos = []
+        url_call = f"{URL}{END_POINT}{PATTERN}{CD_PROCESS}{code_process}"
+        page = requests.get(url_call)
+        soup = BeautifulSoup(page.text, "html.parser")
+        data_elements = soup.find_all('td', width="140")
+        tipo_elements = soup.find_all('td', width="*")
+        for element in data_elements:
+            data_text = element.get_text(strip=True)
+            datas.append(data_text)
+        for tipo in tipo_elements[2:]:
+            tipo_text = tipo.get_text(strip=True)
+            tipos.append(tipo_text.replace('\n', '').replace('\t', ''))
+
+        #df = pd.DataFrame({'Data': datas, 'Descrição': descricoes})
+        dataframe = ({'Data': datas, 'Descrição': tipos})  
+        return dataframe
+
     # scraping data and add into dataframe
     def start_scraping(self, dataframe= dict):
         if type(dataframe) == 'pandas.core.frame.DataFrame':
