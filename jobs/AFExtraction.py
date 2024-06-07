@@ -223,7 +223,6 @@ def af_extraction_client_code(factory: IIngestion,
                                                month=current_month, 
                                                path="gdrive_rich")
 
-
         # creating dataframe to add file into buckets  
         to_data_frame = get_gdrive_data.start_gdrive_extraction(
             gdrive_file_id=id, 

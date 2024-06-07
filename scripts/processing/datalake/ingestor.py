@@ -44,7 +44,11 @@ class Persister(DataLakeIgestor):
         """
         # Convert DataFrame to CSV string
         csv_buffer = StringIO()
-        df.to_csv(csv_buffer, index=False)
+        df.to_csv(csv_buffer, 
+                  index=False, 
+                  sep=';', 
+                  encoding='utf-8-sig')
+
         csv_data = csv_buffer.getvalue()
         
         # Convert CSV string to file-like object

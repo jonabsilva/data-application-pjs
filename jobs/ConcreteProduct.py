@@ -24,7 +24,7 @@ class ProductExtraction(Product):
         #return "Result of the ProductExtraction {client_code(Extraction())}"
         # return {af_extraction_esaj(factory=Extraction(), gcs_bucket="gcs_bucket_landzone")}
         return {af_extraction_client_code(factory=Extraction(), 
-                                          gcs_bucket="gcs_bucket_richzone", 
+                                          gcs_bucket="gcs_bucket_landzone", 
                                           extract_type="esaj")}
 
 

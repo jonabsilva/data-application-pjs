@@ -94,9 +94,9 @@ class ESajData(ESajDataFiles):
                                     "html.parser").find('div', 
                                                         id="dataHoraDistribuicaoProcesso")
         
-        process_distri_date = process_distribuition.text[10]
+        process_distri_date = process_distribuition.text[0:10]
         process_distri_time = process_distribuition.text[14:19]
-        process_distri_status = process_distribuition.text[19]
+        process_distri_status = process_distribuition.text[22:30]
         process_control = BeautifulSoup(page.text, 
                                     "html.parser").find('div', 
                                                         id="numeroControleProcesso"
@@ -108,7 +108,7 @@ class ESajData(ESajDataFiles):
         process_value = BeautifulSoup(page.text, 
                                     "html.parser").find('div', 
                                                         id="valorAcaoProcesso"
-                                                        ).text.strip()
+                                                        )
         
         # Definindo os nomes das colunas
         columns = ["Codigo_do_Processo", "Situacao_projeto" ,"Classe", "Assunto", 
@@ -118,8 +118,8 @@ class ESajData(ESajDataFiles):
         data =  [[process_number, process_situation, process_class, 
                      process_subject, process_foro, process_vara, process_judge,
                      process_distribuition, process_distri_date, process_distri_time,
-                     process_distri_status, process_control, process_area, process_value]]#[columns, data]
-        return pd.DataFrame(data, columns=columns) #dataframe
+                     process_distri_status, process_control, process_area, process_value]]
+        return pd.DataFrame(data, columns=columns)
 
     # PARTES DO PROCESSO
     def get_process_part(self, code_process: str):
@@ -170,7 +170,8 @@ class ESajData(ESajDataFiles):
                     "All lists in the dictionary must be of the same length")
 
             # Convert the data dictionary to a pandas DataFrame
-            df = pd.DataFrame(dataframe).to_string(index=False)
+            df = pd.DataFrame(dataframe).to_string(index=False, 
+                                                   encoding='utf-8-sig')
             return df
         else:
             return dataframe
