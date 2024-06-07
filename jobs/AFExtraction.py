@@ -109,11 +109,11 @@ def af_extraction_client_code(factory: IIngestion,
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_cabecalho,
                                             gcs_file_name=f"{gcs_zone}/esaj/{cabecalho}")
-            #if zone == "gcs_bucket_richzone":
-            #    persister.operation_starter(bucket_name=bucket_name,
-            #                                df=df_esaj,
-            #                                gcs_file_name=f"{gcs_zone}/"
-            #                                f"{cabecalho}")
+            if zone == "gcs_bucket_richzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_cabecalho,
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{cabecalho}")
 
     # MOVIMENTACOES
     cd_movimentacao = ESajData()
@@ -139,11 +139,11 @@ def af_extraction_client_code(factory: IIngestion,
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_movimentacao,
                                             gcs_file_name=f"{gcs_zone}/esaj/{movimentacoes}")
-            #if zone == "gcs_bucket_richzone":
-            #    persister.operation_starter(bucket_name=bucket_name,
-            #                                df=df_esaj,
-            #                                gcs_file_name=f"{gcs_zone}/"
-            #                                f"{cabecalho}")
+            if zone == "gcs_bucket_richzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_movimentacao,
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{movimentacoes}")
 
     # PARTES DO PROCESSO
     cd_process_part = ESajData()
@@ -169,11 +169,11 @@ def af_extraction_client_code(factory: IIngestion,
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_process_part,
                                             gcs_file_name=f"{gcs_zone}/esaj/{process_part}")
-            #if zone == "gcs_bucket_richzone":
-            #    persister.operation_starter(bucket_name=bucket_name,
-            #                                df=df_esaj,
-            #                                gcs_file_name=f"{gcs_zone}/"
-            #                                f"{cabecalho}")
+            if zone == "gcs_bucket_richzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_process_part,
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{process_part}")
 
     # PETICOES DIVERSAS
     cd_peticoes_diversas = ESajData()
@@ -183,7 +183,7 @@ def af_extraction_client_code(factory: IIngestion,
         # Buckt and file name with YYYYmm and cia name vars replaced
         for cias, id in zip(cia, key_id):
             # esaj path
-            movimentacoes = config_vars.clean_name(var=gcs_file,
+            peticoes_diversas = config_vars.clean_name(var=gcs_file,
                                             key="esaj",
                                             index=3,
                                             cia=cias,
@@ -198,12 +198,13 @@ def af_extraction_client_code(factory: IIngestion,
             if zone == "gcs_bucket_landzone":
                 persister.operation_starter(bucket_name=bucket_name,
                                             df=df_peticoes_diversas,
-                                            gcs_file_name=f"{gcs_zone}/esaj/{movimentacoes}")
-            #if zone == "gcs_bucket_richzone":
-            #    persister.operation_starter(bucket_name=bucket_name,
-            #                                df=df_esaj,
-            #                                gcs_file_name=f"{gcs_zone}/"
-            #                                f"{cabecalho}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{peticoes_diversas}")
+            if zone == "gcs_bucket_richzone":
+                persister.operation_starter(bucket_name=bucket_name,
+                                            df=df_peticoes_diversas,
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{movimentacoes}")
 
     # Buckt and file name with YYYYmm and cia name vars replaced
     for cias, id in zip(cia, key_id):

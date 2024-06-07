@@ -68,7 +68,7 @@ class Persister(DataLakeIgestor):
                 print(f"Bucket '{bucket_name}' created successfuly.")
                 # Uploads the CSV file to GCS
         blob = bucket.blob(gcs_file_name)
-        blob.upload_from_file(csv_file, content_type='text/csv')
+        #blob.upload_from_file(csv_file, content_type='text/csv')
 
         print(f"DataFrame uploaded to gs://{bucket_name}/{gcs_file_name}")
 
