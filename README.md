@@ -26,8 +26,8 @@ The goal is to get data from eSaj ingest, process and display data almost all th
     -- n-sources
 - processing
     -- read
-    -- struct
-    -- persist
+    -- persis
+    -- loader
 - consuming
     -- notifier
 

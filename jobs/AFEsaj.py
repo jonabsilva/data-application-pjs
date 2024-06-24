@@ -10,7 +10,6 @@ import ssl
 # Credentials
 ssl._create_default_https_context = ssl._create_unverified_context
 
-
 END_POINT = "cpopg/show.do?processo.codigo="
 CD_PROCESS = "&processo.numero="
 # Regex
@@ -18,13 +17,10 @@ PATTERN=r'(=.*&)'
 URL = f"""https://esaj.tjsp.jus.br/"""
 
 
-code_process_list = ["1028260-20.2021.8.26.0007"]
-
-
 class ESajDataFiles(ABC):
     """
-    Each distinct product of a product family should have a base interface. All
-    variants of the product must implement this interface.
+    Each distinct product of a product family should have a base interface. 
+    All variants of the product must implement this interface.
     """
 
     @abstractmethod

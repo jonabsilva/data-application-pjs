@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from jobs.AFExtraction import *
+from jobs.AFExtraction import Extraction, af_extraction_client_code
 
 
 class Product(ABC):
@@ -21,8 +21,6 @@ Concrete Products provide various implementations of the Product interface.
 
 class ProductExtraction(Product):
     def operation(self) -> str:
-        #return "Result of the ProductExtraction {client_code(Extraction())}"
-        # return {af_extraction_esaj(factory=Extraction(), gcs_bucket="gcs_bucket_landzone")}
         return {af_extraction_client_code(factory=Extraction(), 
                                           gcs_bucket="gcs_bucket_landzone", 
                                           extract_type="esaj")}

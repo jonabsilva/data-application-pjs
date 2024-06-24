@@ -34,4 +34,4 @@ def get_gdrive_file_id(file_name: str) -> str:
     
     return data[field_id]
 
-print(list(set(get_gdrive_file_id("config/conf-vars.json").values())))
+#print(list(set(get_gdrive_file_id("config/conf-vars.json").values())))

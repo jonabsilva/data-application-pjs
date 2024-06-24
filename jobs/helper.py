@@ -36,6 +36,23 @@ class Helper:
 
         return data[gdrive_file_id]
 
+    @staticmethod
+    def get_query_string(file_name: str) -> str:
+        """
+        Read a JSON file and return its data as a dictionary.
+        Args:
+            file_name (str): The name of the JSON file.  
+        Returns:
+            dict: The data from the JSON file as a dictionary.
+        """
+        conf_vars_jobs = os.path.abspath(file_name)
+        # Abrindo e lendo o arquivo .sql
+        with open(conf_vars_jobs, 'r', encoding='utf-8') as arquivo:
+            conteudo_sql = arquivo.read()
+
+        # Exibindo o conteúdo
+        return conteudo_sql
+
     # Read dalk json conf
     @staticmethod
     def get_dlk_vars(file_name: str, env: str, zone: str) -> str:

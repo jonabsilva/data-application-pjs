@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import pandas as pd
 
-from scripts.processing.datalake.ingestor import *
-from jobs.AFEsaj import *
+from scripts.processing.datalake.ingestor import IngestorOperator#*
+from jobs.AFEsaj import (ESajDataFiles, ESajData)#*
 from jobs.AFGdrive import *
 from jobs.helper import Helper
 
@@ -103,14 +103,15 @@ def af_extraction_client_code(factory: IIngestion,
         df_cabecalho = pd.DataFrame(df_reader)
         if extract_type == "esaj":
             task_type = "eSaj"
-            persister = task.start(ingestor_type="persister",
+            loader = task.start(ingestor_type="loader",
                                 task_type=task_type)
             if zone == "gcs_bucket_landzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_cabecalho,
-                                            gcs_file_name=f"{gcs_zone}/esaj/{cabecalho}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{cabecalho}")
             if zone == "gcs_bucket_richzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_cabecalho,
                                             gcs_file_name=f"{gcs_zone}/esaj/"
                                             f"{cabecalho}")
@@ -133,14 +134,15 @@ def af_extraction_client_code(factory: IIngestion,
         df_movimentacao = pd.DataFrame(df_reader)
         if extract_type == "esaj":
             task_type = "eSaj"
-            persister = task.start(ingestor_type="persister",
+            loader = task.start(ingestor_type="loader",
                                 task_type=task_type)
             if zone == "gcs_bucket_landzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_movimentacao,
-                                            gcs_file_name=f"{gcs_zone}/esaj/{movimentacoes}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{movimentacoes}")
             if zone == "gcs_bucket_richzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_movimentacao,
                                             gcs_file_name=f"{gcs_zone}/esaj/"
                                             f"{movimentacoes}")
@@ -163,14 +165,15 @@ def af_extraction_client_code(factory: IIngestion,
         df_process_part = pd.DataFrame(df_reader)
         if extract_type == "esaj":
             task_type = "eSaj"
-            persister = task.start(ingestor_type="persister",
+            loader = task.start(ingestor_type="loader",
                                 task_type=task_type)
             if zone == "gcs_bucket_landzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_process_part,
-                                            gcs_file_name=f"{gcs_zone}/esaj/{process_part}")
+                                            gcs_file_name=f"{gcs_zone}/esaj/"
+                                            f"{process_part}")
             if zone == "gcs_bucket_richzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_process_part,
                                             gcs_file_name=f"{gcs_zone}/esaj/"
                                             f"{process_part}")
@@ -193,15 +196,15 @@ def af_extraction_client_code(factory: IIngestion,
         df_peticoes_diversas = pd.DataFrame(df_reader)
         if extract_type == "esaj":
             task_type = "eSaj"
-            persister = task.start(ingestor_type="persister",
+            loader = task.start(ingestor_type="loader",
                                 task_type=task_type)
             if zone == "gcs_bucket_landzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_peticoes_diversas,
                                             gcs_file_name=f"{gcs_zone}/esaj/"
                                             f"{peticoes_diversas}")
             if zone == "gcs_bucket_richzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_peticoes_diversas,
                                             gcs_file_name=f"{gcs_zone}/esaj/"
                                             f"{movimentacoes}")
@@ -233,14 +236,16 @@ def af_extraction_client_code(factory: IIngestion,
         df_gdrive = pd.DataFrame(to_data_frame)
         if extract_type == "gdrive":
             task_type = "GDrive"
-            persister = task.start(ingestor_type="persister", task_type=task_type)
+            loader = task.start(ingestor_type="loader", 
+                                   task_type=task_type)
             if zone == "gcs_bucket_landzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_gdrive,
-                                            gcs_file_name=f"{gcs_zone}/{gdrive}")
+                                            gcs_file_name=f"{gcs_zone}/"
+                                            f"{gdrive}")
 
             if zone == "gcs_bucket_richzone":
-                persister.operation_starter(bucket_name=bucket_name,
+                loader.operation_starter(bucket_name=bucket_name,
                                             df=df_gdrive,
                                             gcs_file_name=f"{gcs_zone}/"
                                             f"{gdrive_rich}")
