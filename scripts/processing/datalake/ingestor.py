@@ -71,7 +71,7 @@ class Loader(DataLakeIgestor):
             # Verifica se o bucket já existe8
             bucket = storage_client.get_bucket(bucket_name)
             print(f"The bucket '{bucket_name}' already exists.")
-        except:# Exception as e:
+        except Exception as e:
             if isinstance(Conflict):
                 print(f"The bucket '{bucket_name}' already exists.")
             else:
@@ -91,11 +91,10 @@ class Persister(DataLakeIgestor):
                           bucket_name: str, 
                           df: pd.DataFrame, 
                           gcs_file_name: str):
-
-        df_table = df #Reader().operation_starter("db_landzone_idr_00001_pjs_dev","db_landzone_idr_00001_pjs_dev/esaj/cabecalho/cabecalho.csv") #pd.DataFrame(df)
-
+        df_table = df
         result = sqldf(query=query_file)
         print(result)
+        print(bucket_name, "NOME PARA ALTERAR")
         buffer = BytesIO()
         result.to_parquet(buffer, engine='pyarrow')
         buffer.seek(0) # Reset buffer to the begining
@@ -130,40 +129,3 @@ class IngestorOperator:
             raise ValueError("Invalid vehicle type")
 
     def stop():...
-
-
-
-
-
-
-
-#def get_query_string(file_name: str) -> str:
-#    """
-#    Read a JSON file and return its data as a dictionary.
-#    Args:
-#        file_name (str): The name of the JSON file.  
-#    Returns:
-#        dict: The data from the JSON file as a dictionary.
-#    """
-#    conf_vars_jobs = os.path.abspath(file_name)
-#    # Open and read the file .sql
-#    with open(conf_vars_jobs, 'r', encoding='utf-8') as arquivo:
-#        conteudo_sql = arquivo.read()
-#        # Display
-#        return conteudo_sql
-#
-#
-#if __name__ == "__main__":
-#    task = IngestorOperator()
-#    query_string = "scripts/processing/datalake/sql/cabecalho.sql"
-#    loader = task.start(ingestor_type="persister" ,task_type="eSaj")
-#    
-#    file_reader = Reader()
-#    dfr = file_reader.operation_starter("db_landzone_idr_00001_pjs_dev",
-#                                     "db_landzone_idr_00001_pjs_dev/esaj/cabecalho/cabecalho.csv")
-#    loader.operation_starter(
-#        query_file= get_query_string(query_string),
-#        bucket_name= "db_richzone_idr_00001_pjs_dev", 
-#        df=dfr, 
-#        gcs_file_name= "cabecalho/2024/06/cabecalho.parquet")
-#

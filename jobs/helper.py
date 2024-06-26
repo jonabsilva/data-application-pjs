@@ -127,3 +127,22 @@ class Helper:
                     "%YYYY",  str(year)).replace(
                         "%mm",  str(month).zfill(2))
             return path_rich
+
+    @staticmethod
+    def rich_params(file_name: str) -> str:
+        """
+        Read a JSON file and return its data as a dictionary.
+        Args:
+            file_name (str): The name of the JSON file.  
+        Returns:
+            dict: The data from the JSON file as a dictionary.
+        """
+        conf_vars_jobs = os.path.abspath(file_name)
+        with open(conf_vars_jobs, "r") as file:
+            data = json.load(file)
+            gdrive_file_id = str(list(data.keys())[0])
+
+        return data#[gdrive_file_id]
+
+# '/Users/jonathanbrunosilva/Documents/JJTECH/BNS/MVP/data-application-pjs/config/dev/conf-vars.json'
+# /Users/jonathanbrunosilva/Documents/JJTECH/BNS/MVP/data-application-pjs/config/dev/dlk-vars.json

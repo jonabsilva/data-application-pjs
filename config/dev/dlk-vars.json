@@ -2,7 +2,7 @@
   "project_config": {
     "this_project_id": "data-application-pjs",
     "this_bq_location": "EU",
-    "this_gcs_bucket": "dlk-transit-idn-00001-pjs-dev",
+    "this_gcs_bucket": "db_landzone_idr_00001_pjs_dev",
     "this_gcs_bucket_landzone": "db_landzone_idr_00001_pjs_dev",
     "this_gcs_bucket_richzone": "db_richzone_idr_00001_pjs_dev"
   },

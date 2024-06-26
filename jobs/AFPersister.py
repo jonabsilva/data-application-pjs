@@ -1,251 +1,212 @@
-# from __future__ import annotations
-# from abc import ABC, abstractmethod
+from __future__ import annotations
+from abc import ABC, abstractmethod
 
-# from datetime import datetime
-# import pandas as pd
+from datetime import datetime
+import pandas as pd
 
-# from scripts.processing.datalake.ingestor import *
-# from jobs.AFEsaj import *
-# from jobs.AFGdrive import *
-# from jobs.helper import Helper
+from scripts.processing.datalake.ingestor import *
+from jobs.AFEsaj import *
+from jobs.AFGdrive import *
+from jobs.helper import Helper
+from jobs.AFExtraction import (IIngestion, Extraction)
 
-# import ssl
-# # Credentials - Certificate
-# ssl._create_default_https_context = ssl._create_unverified_context
+import ssl
+# Credentials - Certificate
+ssl._create_default_https_context = ssl._create_unverified_context
 
-# # Get current date
-# current_date = datetime.now()
-# # Get current year and month
-# current_year = current_date.year
-# current_month = current_date.month
+# Get current date
+current_date = datetime.now()
+# Get current year and month
+current_year = current_date.year
+current_month = current_date.month
 
-# code_process_list = ["1028260-20.2021.8.26.0007", "1008436-85.2024.8.26.0002"]
-
-
-# class IIngestion(ABC):
-#     """
-#     The Abstract Factory interface declares a set of methods that return
-#     different abstract products. These products are called a family and are
-#     related by a high-level theme or concept. Products of one family are usually
-#     able to collaborate among themselves. A family of products may have several
-#     variants, but the products of one variant are incompatible with products of
-#     another.
-#     """
-#     @abstractmethod
-#     def scraping_esaj(self) -> ESajDataFiles:
-#         pass
-
-#     @abstractmethod
-#     def get_gdrive_data(self) -> GDriveFile:
-#         pass
+code_process_list = ["1028260-20.2021.8.26.0007", "1008436-85.2024.8.26.0002"]
 
 
-# class Extraction(IIngestion):
-#     """
-#     Concrete Factories produce a family of products that belong to a single
-#     variant. The factory guarantees that resulting products are compatible. Note
-#     that signatures of the Concrete Factory's methods return an abstract
-#     product, while inside the method a concrete product is instantiated.
-#     """
+## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
+def af_persistent_client_code(factory: IIngestion, 
+                               gcs_bucket: str,
+                               extract_type: str = None) -> None:
+     """
+     The client code works with factories and products only through abstract
+     types: IIngestion and AbstractProduct. This lets you pass any factory
+     or product subclass to the client code without breaking it.
+     """
+     # from simple factory
+     task = IngestorOperator()
+     config_vars = Helper()
 
-#     def scraping_esaj(self) -> ESajDataFiles:
-#         return ESajData()
-
-#     def get_gdrive_data(self) -> GDriveFile:
-#         return GDriveData()
+     conf = config_vars.rich_params("config/dev/dlk-vars.json")
+     dlk_vars = config_vars.rich_params("config/conf-vars.json")
+     cia = [cia for cia in dlk_vars.keys()]
 
 
-# ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
-# def af_extraction_client_code(factory: IIngestion, 
-#                               gcs_bucket: str,
-#                               extract_type: str = None) -> None:
-#     """
-#     The client code works with factories and products only through abstract
-#     types: IIngestion and AbstractProduct. This lets you pass any factory
-#     or product subclass to the client code without breaking it.
-#     """
-#     # from simple factory
-#     task = IngestorOperator()
+     # CABECALHO
+     cd_cabecalho = ESajData()
+     for process in code_process_list:
+         df_cd_cabecalho = cd_cabecalho.get_cabecalho(process)
+         df_cabecalho = cd_cabecalho.start_scraping(dataframe=df_cd_cabecalho)
 
-#     get_gdrive_data = factory.get_gdrive_data()
-#     config_vars = Helper()
+         columns = df_cabecalho.columns
+         values = df_cabecalho.values[0]
 
-#     conf = config_vars.get_gdrive_file_id("config/conf-vars.json")
-#     cia = [cia for cia in conf.keys()]
-#     key_id = [key_id for key_id in conf.values()]
+         # Creating de um dict from the list
+         data = dict(zip(columns, values))
+         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
 
-#     gcs_conf = config_vars.get_dlk_vars(env="dev", 
-#                                              file_name="dlk-vars.json", 
-#                                              zone="project_config")
+         cabecalho = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
+                                         key="esaj",
+                                         index=0,
+                                         cia=cia,
+                                         year=current_year,
+                                         month=current_month)
+         query_string = "scripts/processing/datalake/sql/cabecalho.sql"
+         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
 
-#     zone = gcs_bucket
-#     bucket_name = gcs_conf[f"this_{gcs_bucket}"]
-#     gcs_zone = gcs_conf[f"this_{gcs_bucket}"]
-#     gcs_file = config_vars.get_dlk_vars(env="dev", 
-#                                              file_name="dlk-vars.json", 
-#                                              zone=zone)
+         for cias in dlk_vars['gdrive_file_id'].keys():
+             name = f"{str(cias).lower()}/{cabecalho}"
+             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
+             
+             loader.operation_starter(
+             query_file= config_vars.get_query_string(query_string),
+             bucket_name=gcs_bucket, 
+             df=df_table, 
+             gcs_file_name=gcs_file_name)
+             # Buckt and file name with YYYYmm and cia name vars replaced
 
-#     # CABECALHO
-#     cd_cabecalho = ESajData()
-#     for process in code_process_list:
-#         df_cd_cabecalho = cd_cabecalho.get_cabecalho(process)
-#         df_reader = cd_cabecalho.start_scraping(dataframe=df_cd_cabecalho)
-#         # Buckt and file name with YYYYmm and cia name vars replaced
-#         for cias, id in zip(cia, key_id):
-#             # esaj path
-#             cabecalho = config_vars.clean_name(var=gcs_file,
-#                                             key="esaj",
-#                                             index=0,
-#                                             cia=cias,
-#                                             year=current_year,
-#                                             month=current_month)
+     # MOVIMENTACOES
+     cd_movimentacoes = ESajData()
+     for process in code_process_list:
+         df_cd_movimentacoes = cd_movimentacoes.get_movimentacoes(process)
+         df_movimentacoes = cd_movimentacoes.start_scraping(dataframe=df_cd_movimentacoes)
 
-#         df_cabecalho = pd.DataFrame(df_reader)
-#         if extract_type == "esaj":
-#             task_type = "eSaj"
-#             loader = task.start(ingestor_type="loader",
-#                                 task_type=task_type)
-#             if zone == "gcs_bucket_landzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_cabecalho,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{cabecalho}")
-#             if zone == "gcs_bucket_richzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_cabecalho,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{cabecalho}")
+         columns = df_movimentacoes.columns
+         values = df_movimentacoes.values[0]
 
-#     # MOVIMENTACOES
-#     cd_movimentacao = ESajData()
-#     for process in code_process_list:
-#         df_cd_movimentacao = cd_movimentacao.get_movimentacoes(process)
-#         df_reader = cd_movimentacao.start_scraping(dataframe=df_cd_movimentacao)
-#         # Buckt and file name with YYYYmm and cia name vars replaced
-#         for cias, id in zip(cia, key_id):
-#             # esaj path
-#             movimentacoes = config_vars.clean_name(var=gcs_file,
-#                                             key="esaj",
-#                                             index=1,
-#                                             cia=cias,
-#                                             year=current_year,
-#                                             month=current_month)
+         # Creating de um dict from the list
+         data = dict(zip(columns, values))
+         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
 
-#         df_movimentacao = pd.DataFrame(df_reader)
-#         if extract_type == "esaj":
-#             task_type = "eSaj"
-#             loader = task.start(ingestor_type="loader",
-#                                 task_type=task_type)
-#             if zone == "gcs_bucket_landzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_movimentacao,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{movimentacoes}")
-#             if zone == "gcs_bucket_richzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_movimentacao,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{movimentacoes}")
+         movimentacoes = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
+                                         key="esaj",
+                                         index=0,
+                                         cia=cia,
+                                         year=current_year,
+                                         month=current_month)
+         query_string = "scripts/processing/datalake/sql/movimentacoes.sql"
+         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
 
-#     # PARTES DO PROCESSO
-#     cd_process_part = ESajData()
-#     for process in code_process_list:
-#         df_cd_process_part = cd_process_part.get_process_part(process)
-#         df_reader = cd_process_part.start_scraping(dataframe=df_cd_process_part)
-#         # Buckt and file name with YYYYmm and cia name vars replaced
-#         for cias, id in zip(cia, key_id):
-#             # esaj path
-#             process_part = config_vars.clean_name(var=gcs_file,
-#                                             key="esaj",
-#                                             index=2,
-#                                             cia=cias,
-#                                             year=current_year,
-#                                             month=current_month)
+         for cias in dlk_vars['gdrive_file_id'].keys():
+             name = f"{str(cias).lower()}/{movimentacoes}"
+             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
+             
+             loader.operation_starter(
+             query_file= config_vars.get_query_string(query_string),
+             bucket_name=gcs_bucket, 
+             df=df_table, 
+             gcs_file_name=gcs_file_name)
 
-#         df_process_part = pd.DataFrame(df_reader)
-#         if extract_type == "esaj":
-#             task_type = "eSaj"
-#             loader = task.start(ingestor_type="loader",
-#                                 task_type=task_type)
-#             if zone == "gcs_bucket_landzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_process_part,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{process_part}")
-#             if zone == "gcs_bucket_richzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_process_part,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{process_part}")
+     # PARTES DO PROCESSO
+     cd_process_part = ESajData()
+     for process in code_process_list:
+         df_cd_process_part = cd_process_part.get_process_part(process)
+         df_process_part = cd_process_part.start_scraping(dataframe=df_cd_process_part)
 
-#     # PETICOES DIVERSAS
-#     cd_peticoes_diversas = ESajData()
-#     for process in code_process_list:
-#         df_cd_peticoes_diversas = cd_peticoes_diversas.get_movimentacoes(process)
-#         df_reader = cd_peticoes_diversas.start_scraping(dataframe=df_cd_peticoes_diversas)
-#         # Buckt and file name with YYYYmm and cia name vars replaced
-#         for cias, id in zip(cia, key_id):
-#             # esaj path
-#             peticoes_diversas = config_vars.clean_name(var=gcs_file,
-#                                             key="esaj",
-#                                             index=3,
-#                                             cia=cias,
-#                                             year=current_year,
-#                                             month=current_month)
+         columns = df_process_part.columns
+         values = df_process_part.values[0]
 
-#         df_peticoes_diversas = pd.DataFrame(df_reader)
-#         if extract_type == "esaj":
-#             task_type = "eSaj"
-#             loader = task.start(ingestor_type="loader",
-#                                 task_type=task_type)
-#             if zone == "gcs_bucket_landzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_peticoes_diversas,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{peticoes_diversas}")
-#             if zone == "gcs_bucket_richzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_peticoes_diversas,
-#                                             gcs_file_name=f"{gcs_zone}/esaj/"
-#                                             f"{movimentacoes}")
+         # Creating de um dict from the list
+         data = dict(zip(columns, values))
+         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
 
-#     # Buckt and file name with YYYYmm and cia name vars replaced
-#     for cias, id in zip(cia, key_id):
-#         #gdrive path
-#         gdrive = config_vars.clean_name_gdrive(var=gcs_file, 
-#                                                key="gdrive", 
-#                                                cia=cias, 
-#                                                year=current_year, 
-#                                                month=current_month, 
-#                                                path="gdrive")
+         process_part = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
+                                         key="esaj",
+                                         index=0,
+                                         cia=cia,
+                                         year=current_year,
+                                         month=current_month)
+         query_string = "scripts/processing/datalake/sql/process_part.sql"
+         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
 
-#         gdrive_rich = config_vars.clean_name_gdrive(var=gcs_file, 
-#                                                key="gdrive", 
-#                                                cia=cias, 
-#                                                year=current_year, 
-#                                                month=current_month, 
-#                                                path="gdrive_rich")
+         for cias in dlk_vars['gdrive_file_id'].keys():
+             name = f"{str(cias).lower()}/{process_part}"
+             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
+             
+             loader.operation_starter(
+             query_file= config_vars.get_query_string(query_string),
+             bucket_name=gcs_bucket, 
+             df=df_table, 
+             gcs_file_name=gcs_file_name)
 
-#         # creating dataframe to add file into buckets  
-#         to_data_frame = get_gdrive_data.start_gdrive_extraction(
-#             gdrive_file_id=id, 
-#             credentials_drive="CREDENCIALS_DRIVE", 
-#             api_key="API_KEY")
+     # PETICOES DIVERSAS
+     cd_peticoes_diversas = ESajData()
+     for process in code_process_list:
+         df_cd_peticoes_diversas = cd_peticoes_diversas.get_movimentacoes(process)
+         df_peticoes_diversas = cd_peticoes_diversas.start_scraping(dataframe=df_cd_peticoes_diversas)
 
-#         # Obtém os valores dos parâmetros
-#         df_gdrive = pd.DataFrame(to_data_frame)
-#         if extract_type == "gdrive":
-#             task_type = "GDrive"
-#             loader = task.start(ingestor_type="loader", 
-#                                    task_type=task_type)
-#             if zone == "gcs_bucket_landzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_gdrive,
-#                                             gcs_file_name=f"{gcs_zone}/"
-#                                             f"{gdrive}")
+         columns = df_peticoes_diversas.columns
+         values = df_peticoes_diversas.values[0]
 
-#             if zone == "gcs_bucket_richzone":
-#                 loader.operation_starter(bucket_name=bucket_name,
-#                                             df=df_gdrive,
-#                                             gcs_file_name=f"{gcs_zone}/"
-#                                             f"{gdrive_rich}")
+         # Creating de um dict from the list
+         data = dict(zip(columns, values))
+         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
+         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
+
+         peticoes_diversas = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
+                                         key="esaj",
+                                         index=0,
+                                         cia=cia,
+                                         year=current_year,
+                                         month=current_month)
+         query_string = "scripts/processing/datalake/sql/peticoes_diversas.sql"
+         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
+
+         for cias in dlk_vars['gdrive_file_id'].keys():
+             name = f"{str(cias).lower()}/{peticoes_diversas}"
+             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
+             
+             loader.operation_starter(
+             query_file= config_vars.get_query_string(query_string),
+             bucket_name=gcs_bucket, 
+             df=df_table, 
+             gcs_file_name=gcs_file_name)
+
+
+#def get_query_string(file_name: str) -> str:
+#    """
+#    Read a JSON file and return its data as a dictionary.
+#    Args:
+#        file_name (str): The name of the JSON file.  
+#    Returns:
+#        dict: The data from the JSON file as a dictionary.
+#    """
+#    conf_vars_jobs = os.path.abspath(file_name)
+#    # Open and read the file .sql
+#    with open(conf_vars_jobs, 'r', encoding='utf-8') as arquivo:
+#        conteudo_sql = arquivo.read()
+#        # Display
+#        return conteudo_sql
+#
+#
+#if __name__ == "__main__":
+#    task = IngestorOperator()
+#    query_string = "scripts/processing/datalake/sql/cabecalho.sql"
+#    loader = task.start(ingestor_type="persister" ,task_type="eSaj")
+#
+#    loader.operation_starter(
+#        query_file= get_query_string(query_string),
+#        bucket_name= "db_richzone_idr_00001_pjs_dev", 
+#        df=dfr, 
+#        gcs_file_name= "cabecalho/2024/06/cabecalho.parquet")
+
