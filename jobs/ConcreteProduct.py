@@ -34,6 +34,5 @@ class ProductReporting(Product):
 
 class ProductProcessing(Product):
     def operation(self) -> str:
-        return af_persistent_client_code(factory=Extraction(), 
-                                          gcs_bucket="db_richzone_idr_00001_pjs_dev", 
+        return af_persistent_client_code(gcs_bucket="db_richzone_idr_00001_pjs_dev", 
                                           extract_type="esaj")

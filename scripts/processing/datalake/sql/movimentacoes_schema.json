@@ -3,7 +3,7 @@
   "name": "movimentacoes",
   "fields": [
     { "name": "codigo_do_processo", "type": "string" },
-    { "name": "situacao_projeto", "type": "string" },
-    { "name": "classe", "type": "string" }
+    { "name": "data", "type": "date" },
+    { "name": "descricao", "type": "string" }
   ]
 }

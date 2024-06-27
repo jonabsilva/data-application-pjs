@@ -24,8 +24,7 @@ code_process_list = ["1028260-20.2021.8.26.0007", "1008436-85.2024.8.26.0002"]
 
 
 ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
-def af_persistent_client_code(factory: IIngestion, 
-                               gcs_bucket: str,
+def af_persistent_client_code(gcs_bucket: str,
                                extract_type: str = None) -> None:
      """
      The client code works with factories and products only through abstract
@@ -52,9 +51,9 @@ def af_persistent_client_code(factory: IIngestion,
 
          # Creating de um dict from the list
          data = dict(zip(columns, values))
-         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
+         df_table_cab = pd.DataFrame([data]).drop('Distribuicao', axis=1)
+         df_table_cab['Valor_da_acao'] = df_table_cab['Valor_da_acao'].astype(str)
+         df_table_cab['Valor_da_acao'] = df_table_cab['Valor_da_acao'].str[28:-6].str.strip()
 
          cabecalho = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
                                          key="esaj",
@@ -63,19 +62,22 @@ def af_persistent_client_code(factory: IIngestion,
                                          year=current_year,
                                          month=current_month)
          query_string = "scripts/processing/datalake/sql/cabecalho.sql"
-         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
+         loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
          for cias in dlk_vars['gdrive_file_id'].keys():
              name = f"{str(cias).lower()}/{cabecalho}"
-             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
              
              loader.operation_starter(
              query_file= config_vars.get_query_string(query_string),
              bucket_name=gcs_bucket, 
-             df=df_table, 
+             df=df_table_cab, 
              gcs_file_name=gcs_file_name)
              # Buckt and file name with YYYYmm and cia name vars replaced
+     
+     # CODE TO BE USED WITH THE FILE NAME
+     process_code_file_name = process_code
 
      # MOVIMENTACOES
      cd_movimentacoes = ESajData()
@@ -83,33 +85,29 @@ def af_persistent_client_code(factory: IIngestion,
          df_cd_movimentacoes = cd_movimentacoes.get_movimentacoes(process)
          df_movimentacoes = cd_movimentacoes.start_scraping(dataframe=df_cd_movimentacoes)
 
-         columns = df_movimentacoes.columns
-         values = df_movimentacoes.values[0]
-
          # Creating de um dict from the list
          data = dict(zip(columns, values))
-         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
+         df_table_mvnt = pd.DataFrame(df_movimentacoes)
+         df_table_mvnt["Codigo_do_Processo"] = process
 
          movimentacoes = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
                                          key="esaj",
-                                         index=0,
+                                         index=1,
                                          cia=cia,
                                          year=current_year,
                                          month=current_month)
          query_string = "scripts/processing/datalake/sql/movimentacoes.sql"
-         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
+         loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
          for cias in dlk_vars['gdrive_file_id'].keys():
              name = f"{str(cias).lower()}/{movimentacoes}"
-             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
              
              loader.operation_starter(
              query_file= config_vars.get_query_string(query_string),
              bucket_name=gcs_bucket, 
-             df=df_table, 
+             df=df_table_mvnt, 
              gcs_file_name=gcs_file_name)
 
      # PARTES DO PROCESSO
@@ -123,28 +121,27 @@ def af_persistent_client_code(factory: IIngestion,
 
          # Creating de um dict from the list
          data = dict(zip(columns, values))
-         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
+         df_table_cdp = pd.DataFrame([data])
+         df_table_cdp["Codigo_do_Processo"] = process
 
          process_part = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
                                          key="esaj",
-                                         index=0,
+                                         index=2,
                                          cia=cia,
                                          year=current_year,
                                          month=current_month)
          query_string = "scripts/processing/datalake/sql/process_part.sql"
-         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
+         loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
          for cias in dlk_vars['gdrive_file_id'].keys():
              name = f"{str(cias).lower()}/{process_part}"
-             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
              
              loader.operation_starter(
              query_file= config_vars.get_query_string(query_string),
              bucket_name=gcs_bucket, 
-             df=df_table, 
+             df=df_table_cdp, 
              gcs_file_name=gcs_file_name)
 
      # PETICOES DIVERSAS
@@ -153,60 +150,25 @@ def af_persistent_client_code(factory: IIngestion,
          df_cd_peticoes_diversas = cd_peticoes_diversas.get_movimentacoes(process)
          df_peticoes_diversas = cd_peticoes_diversas.start_scraping(dataframe=df_cd_peticoes_diversas)
 
-         columns = df_peticoes_diversas.columns
-         values = df_peticoes_diversas.values[0]
-
-         # Creating de um dict from the list
-         data = dict(zip(columns, values))
-         df_table = pd.DataFrame([data]).drop('Distribuicao', axis=1)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].astype(str)
-         df_table['Valor_da_acao'] = df_table['Valor_da_acao'].str[28:-6].str.strip()
+         df_table_dstr = pd.DataFrame(df_peticoes_diversas)
+         df_table_dstr["Codigo_do_Processo"] = process
 
          peticoes_diversas = config_vars.clean_name(var=conf['gcs_bucket_richzone'],
                                          key="esaj",
-                                         index=0,
+                                         index=3,
                                          cia=cia,
                                          year=current_year,
                                          month=current_month)
          query_string = "scripts/processing/datalake/sql/peticoes_diversas.sql"
-         loader = task.start(ingestor_type="persister" ,task_type="eSaj")
+         loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
          for cias in dlk_vars['gdrive_file_id'].keys():
              name = f"{str(cias).lower()}/{peticoes_diversas}"
-             process_code=df_table.loc[0, 'Codigo_do_Processo'].replace('.','')
+             process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
              
              loader.operation_starter(
              query_file= config_vars.get_query_string(query_string),
              bucket_name=gcs_bucket, 
-             df=df_table, 
+             df=df_table_dstr, 
              gcs_file_name=gcs_file_name)
-
-
-#def get_query_string(file_name: str) -> str:
-#    """
-#    Read a JSON file and return its data as a dictionary.
-#    Args:
-#        file_name (str): The name of the JSON file.  
-#    Returns:
-#        dict: The data from the JSON file as a dictionary.
-#    """
-#    conf_vars_jobs = os.path.abspath(file_name)
-#    # Open and read the file .sql
-#    with open(conf_vars_jobs, 'r', encoding='utf-8') as arquivo:
-#        conteudo_sql = arquivo.read()
-#        # Display
-#        return conteudo_sql
-#
-#
-#if __name__ == "__main__":
-#    task = IngestorOperator()
-#    query_string = "scripts/processing/datalake/sql/cabecalho.sql"
-#    loader = task.start(ingestor_type="persister" ,task_type="eSaj")
-#
-#    loader.operation_starter(
-#        query_file= get_query_string(query_string),
-#        bucket_name= "db_richzone_idr_00001_pjs_dev", 
-#        df=dfr, 
-#        gcs_file_name= "cabecalho/2024/06/cabecalho.parquet")
-

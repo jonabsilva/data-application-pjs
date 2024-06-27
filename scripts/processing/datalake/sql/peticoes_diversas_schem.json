@@ -3,7 +3,7 @@
   "name": "peticoes_diversas",
   "fields": [
     { "name": "codigo_do_processo", "type": "string" },
-    { "name": "situacao_projeto", "type": "string" },
-    { "name": "classe", "type": "string" }
+    { "name": "requerente", "type": "string" },
+    { "name": "requerido", "type": "string" }
   ]
 }

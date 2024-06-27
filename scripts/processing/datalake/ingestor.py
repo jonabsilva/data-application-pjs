@@ -106,7 +106,7 @@ class Persister(DataLakeIgestor):
         # Creating a blob
         blob = bucket.blob(gcs_file_name)
         # Buffer into GCS
-        #blob.upload_from_file(buffer, content_type='application/octet-stream')
+        blob.upload_from_file(buffer, content_type='application/octet-stream')
         #log
         print(f"Buffer uploaded to {gcs_file_name} in bucket {bucket_name}.")
 
