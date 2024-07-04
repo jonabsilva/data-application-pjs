@@ -1,0 +1,27 @@
+{
+  "project_config": {
+    "this_project_id": "data-application-pjs",
+    "this_bq_location": "EU",
+    "this_gcs_bucket": "db_landzone_idr_00001_pjs_dev",
+    "this_gcs_bucket_landzone": "db_landzone_idr_00001_pjs_dev",
+    "this_gcs_bucket_richzone": "db_richzone_idr_00001_pjs_dev"
+  },
+  "gcs_bucket_landzone": {
+    "gdrive": "gdrive-api/%cia-process-code.csv",
+    "esaj": [
+      "cabecalho/cabecalho.csv",
+      "movimentacoes/movimentacoes.csv",
+      "partes_do_processo/partes_do_processo.csv",
+      "peticoes_diversas/peticoes_diversas.csv"
+    ]
+  },
+  "gcs_bucket_richzone": {
+    "gdrive": "gdrive-api/%YYYY/%mm/%cia-process-code-%YYYY%mm.csv",
+    "esaj": [
+      "cabecalho/%YYYY/%mm/cabecalho.csv",
+      "movimentacoes/%YYYY/%mm/movimentacoes.csv",
+      "partes_do_processo/%YYYY/%mm/partes_do_processo.csv",
+      "peticoes_diversas/%YYYY/%mm/peticoes_diversas.csv"
+    ]
+  }
+}

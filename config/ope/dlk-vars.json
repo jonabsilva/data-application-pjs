@@ -1,0 +1,9 @@
+{
+  "project_config": {
+    "this_project_id": "data-application-pjs",
+    "this_bq_location": "EU",
+    "this_gcs_bucket": "dlk-transit-idn-00001-pjs-ope",
+    "this_gcs_bucket_landzone": "db_landzone_idn_00001_pjs_ope",
+    "this_gcs_bucket_richzone": "db_richzone_idn_00001_pjs_ope"
+  }
+}
