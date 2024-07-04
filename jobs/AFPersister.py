@@ -1,6 +1,3 @@
-from __future__ import annotations
-from abc import ABC, abstractmethod
-
 from datetime import datetime
 import pandas as pd
 
@@ -8,7 +5,6 @@ from scripts.processing.datalake.ingestor import *
 from jobs.AFEsaj import *
 from jobs.AFGdrive import *
 from jobs.helper import Helper
-from jobs.AFExtraction import (IIngestion, Extraction)
 
 import ssl
 # Credentials - Certificate
@@ -20,7 +16,7 @@ current_date = datetime.now()
 current_year = current_date.year
 current_month = current_date.month
 
-code_process_list = ["1028260-20.2021.8.26.0007", "1008436-85.2024.8.26.0002"]
+code_process_list = ["xxxxxx", "xxxxxx"]
 
 
 ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
@@ -38,7 +34,6 @@ def af_persistent_client_code(gcs_bucket: str,
      conf = config_vars.rich_params("config/dev/dlk-vars.json")
      dlk_vars = config_vars.rich_params("config/conf-vars.json")
      cia = [cia for cia in dlk_vars.keys()]
-
 
      # CABECALHO
      cd_cabecalho = ESajData()
@@ -64,7 +59,7 @@ def af_persistent_client_code(gcs_bucket: str,
          query_string = "scripts/processing/datalake/sql/cabecalho.sql"
          loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
-         for cias in dlk_vars['gdrive_file_id'].keys():
+         for cias in dlk_vars['customer_info'].keys():
              name = f"{str(cias).lower()}/{cabecalho}"
              process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
@@ -74,10 +69,6 @@ def af_persistent_client_code(gcs_bucket: str,
              bucket_name=gcs_bucket, 
              df=df_table_cab, 
              gcs_file_name=gcs_file_name)
-             # Buckt and file name with YYYYmm and cia name vars replaced
-     
-     # CODE TO BE USED WITH THE FILE NAME
-     process_code_file_name = process_code
 
      # MOVIMENTACOES
      cd_movimentacoes = ESajData()
@@ -99,7 +90,7 @@ def af_persistent_client_code(gcs_bucket: str,
          query_string = "scripts/processing/datalake/sql/movimentacoes.sql"
          loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
-         for cias in dlk_vars['gdrive_file_id'].keys():
+         for cias in dlk_vars['customer_info'].keys():
              name = f"{str(cias).lower()}/{movimentacoes}"
              process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
@@ -133,7 +124,7 @@ def af_persistent_client_code(gcs_bucket: str,
          query_string = "scripts/processing/datalake/sql/process_part.sql"
          loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
-         for cias in dlk_vars['gdrive_file_id'].keys():
+         for cias in dlk_vars['customer_info'].keys():
              name = f"{str(cias).lower()}/{process_part}"
              process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
@@ -162,7 +153,7 @@ def af_persistent_client_code(gcs_bucket: str,
          query_string = "scripts/processing/datalake/sql/peticoes_diversas.sql"
          loader = task.start(ingestor_type="persister" ,task_type=extract_type)
 
-         for cias in dlk_vars['gdrive_file_id'].keys():
+         for cias in dlk_vars['customer_info'].keys():
              name = f"{str(cias).lower()}/{peticoes_diversas}"
              process_code=process.replace('.','')
              gcs_file_name=f"{name[:-4]}_{process_code}.parquet"
@@ -172,3 +163,7 @@ def af_persistent_client_code(gcs_bucket: str,
              bucket_name=gcs_bucket, 
              df=df_table_dstr, 
              gcs_file_name=gcs_file_name)
+
+
+def start_updating():
+    pass

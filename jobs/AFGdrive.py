@@ -30,7 +30,7 @@ Concrete Products are created by corresponding Concrete Factories.
 
 class GDriveData(GDriveFile):
     def start_gdrive_extraction(self, 
-                                gdrive_file_id: str, 
+                                customer_info: str, 
                                 credentials_drive: str, 
                                 api_key: str):
         try:
@@ -47,7 +47,7 @@ class GDriveData(GDriveFile):
             # Download the file from Google Drive
             uri = "https://www.googleapis.com/drive/v3/files/"
             end_point = pattern.get_env_variables(var=api_key)
-            url = f'{uri}{gdrive_file_id}?alt=media&key={end_point}'
+            url = f'{uri}{customer_info}?alt=media&key={end_point}'
             response = requests.get(url)
 
             if response.status_code == 200:

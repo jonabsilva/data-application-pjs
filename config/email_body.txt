@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p>Houveram {{ num_codigos }} códigos atualizados na data de {{ data }} e para consultar visite sua
+pasta de códigos atualizados no <a href="{{ google_drive_link }}">Meu GoogleDrive</a>.</p>
+
+<p>Para sua comodidade pode também consultar pelo telegram usando o número do código
+e saber qual tipo de atualização ocorreu.</p>
+
+<p>Atenciosamente,<br>
+Jonathan-CEO<br>
+Consultech</p>
+</body>
+</html>

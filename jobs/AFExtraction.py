@@ -7,6 +7,7 @@ import pandas as pd
 from scripts.processing.datalake.ingestor import *
 from jobs.AFEsaj import *
 from jobs.AFGdrive import *
+from jobs.AFUpdates import *
 from jobs.helper import Helper
 
 import ssl
@@ -19,7 +20,7 @@ current_date = datetime.now()
 current_year = current_date.year
 current_month = current_date.month
 
-code_process_list = ["1028260-20.2021.8.26.0007", "1008436-85.2024.8.26.0002"]
+code_process_list = ["xxxxxx", "xxxxxxx"]
 
 
 class IIngestion(ABC):
@@ -39,6 +40,10 @@ class IIngestion(ABC):
     def get_gdrive_data(self) -> GDriveFile:
         pass
 
+    @abstractmethod
+    def get_updated_process(self) -> UpdatedProcess:
+        pass
+
 
 class Extraction(IIngestion):
     """
@@ -53,6 +58,9 @@ class Extraction(IIngestion):
 
     def get_gdrive_data(self) -> GDriveFile:
         return GDriveData()
+
+    def get_updated_process(self) -> UpdatedProcess:
+        return Updates()
 
 
 ## O CLIENT SERA CHAMDO DO CONCRETE PRODUCT
@@ -70,7 +78,7 @@ def af_extraction_client_code(factory: IIngestion,
     get_gdrive_data = factory.get_gdrive_data()
     config_vars = Helper()
 
-    conf = config_vars.get_gdrive_file_id("config/conf-vars.json")
+    conf = config_vars.get_customer_info("config/conf-vars.json", "customer_info")
     cia = [cia for cia in conf.keys()]
     key_id = [key_id for key_id in conf.values()]
 
@@ -228,7 +236,7 @@ def af_extraction_client_code(factory: IIngestion,
 
         # creating dataframe to add file into buckets  
         to_data_frame = get_gdrive_data.start_gdrive_extraction(
-            gdrive_file_id=id, 
+            customer_info=id, 
             credentials_drive="CREDENCIALS_DRIVE", 
             api_key="API_KEY")
 

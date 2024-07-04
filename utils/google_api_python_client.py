@@ -7,16 +7,16 @@ import requests
 
 
 class GoogleDriveAPIClient:
-    def __init__(self, credencials: str, api_key: str, gdrive_file_id: dict):
+    def __init__(self, credencials: str, api_key: str, customer_info: dict):
             """
             params:
                 credencials (str): JSON path of the file from your application. 
                 api_key: (str) Secret key from your application.
-                gdrive_file_id (dict): The key of each file on gdrive         
+                customer_info (dict): The key of each file on gdrive         
             """
             self.credencials = credencials
             self.api_key = api_key
-            self.gdrive_file_id = gdrive_file_id
+            self.customer_info = customer_info
 
     def get_data_gdrive_api(self, cia_key: str=None) -> str:
             """
@@ -37,7 +37,7 @@ class GoogleDriveAPIClient:
                                   credentials=credentials_drive)
 
             try:
-                id = self.gdrive_file_id[cia_key]
+                id = self.customer_info[cia_key]
                 # Download the file from Google Drive
                 url = f"{uri}drive/v3/files/{id}?alt=media&key={self.api_key}"
                 response = requests.get(url)

@@ -68,7 +68,7 @@ class Loader(DataLakeIgestor):
 
         # Uploads the CSV file to GCS
         try:
-            # Verifica se o bucket já existe8
+            # Verifica se o bucket já existe
             bucket = storage_client.get_bucket(bucket_name)
             print(f"The bucket '{bucket_name}' already exists.")
         except Exception as e:
@@ -80,7 +80,7 @@ class Loader(DataLakeIgestor):
                 bucket = storage_client.create_bucket(bucket)
                 print(f"Bucket '{bucket_name}' created successfuly.")
         blob = bucket.blob(gcs_file_name)
-        blob.upload_from_string(csv_file, 'text/csv')
+        #blob.upload_from_string(csv_file, 'text/csv')
 
         print(f"DataFrame uploaded to gs://{bucket_name}/{gcs_file_name}")
 
@@ -94,7 +94,9 @@ class Persister(DataLakeIgestor):
         df_table = df
         result = sqldf(query=query_file)
         print(result)
-        print(bucket_name, "NOME PARA ALTERAR")
+        print("#########result#############")
+        print(bucket_name)
+        print("#########bucket_name#############")
         buffer = BytesIO()
         result.to_parquet(buffer, engine='pyarrow')
         buffer.seek(0) # Reset buffer to the begining
@@ -106,9 +108,14 @@ class Persister(DataLakeIgestor):
         # Creating a blob
         blob = bucket.blob(gcs_file_name)
         # Buffer into GCS
-        blob.upload_from_file(buffer, content_type='application/octet-stream')
+        #blob.upload_from_file(buffer, content_type='application/octet-stream')
         #log
         print(f"Buffer uploaded to {gcs_file_name} in bucket {bucket_name}.")
+
+
+class Updater(DataLakeIgestor):
+    def operation_starter(self) -> str:
+        pass
 
 
 class IngestorOperator:

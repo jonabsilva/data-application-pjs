@@ -1,6 +1,11 @@
 # Ignore os arquivos de sistema do Mac
 .DS_store
 
+# files
+.get-pip
+.get-pip.py
+get-pip.py
+
 # Environments
 .env
 .venv

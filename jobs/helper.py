@@ -21,7 +21,7 @@ class Helper:
 
     # Read a JSON
     @staticmethod
-    def get_gdrive_file_id(file_name: str) -> str:
+    def get_customer_info(file_name: str, key: str=None) -> str:
         """
         Read a JSON file and return its data as a dictionary.
         Args:
@@ -32,9 +32,17 @@ class Helper:
         conf_vars_jobs = os.path.abspath(file_name)
         with open(conf_vars_jobs, "r") as file:
             data = json.load(file)
-            gdrive_file_id = str(list(data.keys())[0])
+            customer_info = str(list(data.keys())[0])
 
-        return data[gdrive_file_id]
+        return data[key]
+
+    @staticmethod
+    def get_email_body(file_name: str):
+        with open(file_name, 'r') as file:
+            # Ler o conteúdo do arquivo inteiro
+            content = file.read()
+        
+        return content
 
     @staticmethod
     def get_query_string(file_name: str) -> str:
@@ -140,9 +148,6 @@ class Helper:
         conf_vars_jobs = os.path.abspath(file_name)
         with open(conf_vars_jobs, "r") as file:
             data = json.load(file)
-            gdrive_file_id = str(list(data.keys())[0])
+            customer_info = str(list(data.keys())[0])
 
-        return data#[gdrive_file_id]
-
-# '/Users/jonathanbrunosilva/Documents/JJTECH/BNS/MVP/data-application-pjs/config/dev/conf-vars.json'
-# /Users/jonathanbrunosilva/Documents/JJTECH/BNS/MVP/data-application-pjs/config/dev/dlk-vars.json
+        return data#[customer_info]
